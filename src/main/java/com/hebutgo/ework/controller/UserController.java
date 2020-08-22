@@ -1,6 +1,8 @@
 package com.hebutgo.ework.controller;
 
 
+import com.hebutgo.ework.entity.request.LoginRequest;
+import com.hebutgo.ework.entity.vo.LoginVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.hebutgo.ework.common.ApiResponse;
@@ -34,7 +36,7 @@ public class UserController {
     IUserService iUserService;
 
     @CrossOrigin
-    @ApiOperation(value = "用户注册",tags = CommonConstant.USER_REGISTER)
+    @ApiOperation(value = "用户注册",tags = CommonConstant.USER_ACCOUNT)
     @PostMapping("/register")
     public ApiResponse register(
             @RequestBody UserRegisterRequest UserRegisterRequest
@@ -52,6 +54,23 @@ public class UserController {
         return ApiResponse.success(registerVo);
     }
 
-
+    @CrossOrigin
+    @ApiOperation(value = "用户登陆", tags = CommonConstant.USER_ACCOUNT)
+    @PostMapping("/login")
+    public ApiResponse<LoginVo> login(
+            @RequestBody LoginRequest loginRequest
+    ) {
+        LoginVo loginVo;
+        try {
+            loginVo = iUserService.login(loginRequest);
+        } catch (BizException e) {
+            logger.error("登陆失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("登陆失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(loginVo);
+    }
 
 }

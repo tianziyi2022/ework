@@ -7,6 +7,8 @@ import com.hebutgo.ework.common.ErrorCodeEnum;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.request.AdminRegisterRequest;
+import com.hebutgo.ework.entity.request.LoginRequest;
+import com.hebutgo.ework.entity.vo.LoginVo;
 import com.hebutgo.ework.entity.vo.RegisterVo;
 import com.hebutgo.ework.service.IAdminService;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +35,7 @@ public class AdminController {
     IAdminService iAdminService;
 
     @CrossOrigin
-    @ApiOperation(value = "管理员注册",tags = CommonConstant.ADMIN_REGISTER)
+    @ApiOperation(value = "管理员注册",tags = CommonConstant.ADMIN_ACCOUNT)
     @PostMapping("/register")
     public ApiResponse register(
             @RequestBody AdminRegisterRequest adminRegisterRequest
@@ -49,5 +51,24 @@ public class AdminController {
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
         return ApiResponse.success(registerVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员登陆", tags = CommonConstant.ADMIN_ACCOUNT)
+    @PostMapping("/login")
+    public ApiResponse<LoginVo> login(
+            @RequestBody LoginRequest loginRequest
+    ) {
+        LoginVo loginVo;
+        try {
+            loginVo = iAdminService.login(loginRequest);
+        } catch (BizException e) {
+            logger.error("登陆失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("登陆失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(loginVo);
     }
 }

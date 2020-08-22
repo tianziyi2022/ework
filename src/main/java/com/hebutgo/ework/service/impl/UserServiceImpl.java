@@ -6,7 +6,9 @@ import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.User;
 import com.hebutgo.ework.entity.request.AdminRegisterRequest;
+import com.hebutgo.ework.entity.request.LoginRequest;
 import com.hebutgo.ework.entity.request.UserRegisterRequest;
+import com.hebutgo.ework.entity.vo.LoginVo;
 import com.hebutgo.ework.entity.vo.RegisterVo;
 import com.hebutgo.ework.mapper.UserMapper;
 import com.hebutgo.ework.service.IUserService;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * <p>
@@ -77,4 +80,58 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         registerVo.setUserName(user1.getUserName());
         return registerVo;
     }
+
+    @Override
+    public LoginVo login(LoginRequest loginRequest) {
+        String loginId = loginRequest.getLoginId();
+        String password = loginRequest.getPassword();
+        User users1 = new User();
+        //登录名userId登陆
+        users1.setUserId(loginId);
+        QueryWrapper queryWrapper1 = new QueryWrapper();
+        queryWrapper1.setEntity(users1);
+        User user1 = userMapper.selectOne(queryWrapper1);
+        //电话号phone登陆
+        if (Objects.isNull(user1)) {
+            users1 = new User();
+            users1.setPhone(loginId);
+            QueryWrapper queryWrapper2 = new QueryWrapper();
+            queryWrapper2.setEntity(users1);
+            user1 = userMapper.selectOne(queryWrapper2);
+        }
+        //学工号studentId/adminId登陆
+        if (Objects.isNull(user1)) {
+            users1 = new User();
+            users1.setStudentId(loginId);
+            QueryWrapper queryWrapper2 = new QueryWrapper();
+            queryWrapper2.setEntity(users1);
+            user1 = userMapper.selectOne(queryWrapper2);
+        }
+        if (Objects.isNull(user1)) {
+            throw new BizException("该账号不存在");
+        }
+        else if (user1.getStatus() == 0) {
+            throw new BizException("该账户已注销");
+        }
+        else if (user1.getStatus() == 20) {
+            throw new BizException("该账户被锁定");
+        }
+        else if (user1.getStatus() != 10) {
+            throw new BizException("该账户状态异常");
+        }
+        else if(!user1.getPassword().equals(password)){
+            throw new BizException("密码不正确");
+        }
+        user1.setToken("user-token-" + UUID.randomUUID());
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.setEntity(users1);
+        userMapper.update(user1, updateWrapper);
+        LoginVo loginVo = new LoginVo();
+        loginVo.setId(user1.getId());
+        loginVo.setToken(user1.getToken());
+        loginVo.setUserName(user1.getUserName());
+        loginVo.setType(20);
+        return loginVo;
+    }
+
 }
