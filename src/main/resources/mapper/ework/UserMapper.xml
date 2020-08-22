@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hebutgo.ework.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.hebutgo.ework.entity.User">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="student_id" property="studentId" />
+        <result column="password" property="password" />
+        <result column="phone" property="phone" />
+        <result column="user_name" property="userName" />
+        <result column="group_id" property="groupId" />
+        <result column="status" property="status" />
+        <result column="note" property="note" />
+        <result column="token" property="token" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+</mapper>
