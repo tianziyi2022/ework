@@ -3,6 +3,8 @@ package com.hebutgo.ework.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -77,10 +79,10 @@ public class WorkSubmit extends Model<WorkSubmit> {
     private Integer status;
 
     @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createTime;
+    private Timestamp createTime;
 
     @ApiModelProperty(value = "修改时间")
-    private LocalDateTime updateTime;
+    private Timestamp updateTime;
 
 
     @Override

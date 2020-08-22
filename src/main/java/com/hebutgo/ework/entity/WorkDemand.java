@@ -3,6 +3,8 @@ package com.hebutgo.ework.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -50,10 +52,10 @@ public class WorkDemand extends Model<WorkDemand> {
     private Integer status;
 
     @ApiModelProperty(value = "开始（收作业）时间")
-    private LocalDateTime startTime;
+    private Timestamp startTime;
 
     @ApiModelProperty(value = "结束（收作业）时间")
-    private LocalDateTime endTime;
+    private Timestamp endTime;
 
     @ApiModelProperty(value = "发放学生计数")
     private Integer studentCount;
@@ -64,9 +66,11 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "发放小组id")
     private Integer groupId;
 
-    private LocalDateTime createTime;
+    @ApiModelProperty(value = "创建时间")
+    private Timestamp createTime;
 
-    private LocalDateTime updateTime;
+    @ApiModelProperty(value = "修改时间")
+    private Timestamp updateTime;
 
 
     @Override

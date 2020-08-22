@@ -2,6 +2,8 @@ package com.hebutgo.ework.service;
 
 import com.hebutgo.ework.entity.Admin;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hebutgo.ework.entity.request.AdminRegisterRequest;
+import com.hebutgo.ework.entity.vo.RegisterVo;
 
 /**
  * <p>
@@ -12,5 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2020-08-22
  */
 public interface IAdminService extends IService<Admin> {
-
+    public RegisterVo register(AdminRegisterRequest adminRegisterRequest);
 }
