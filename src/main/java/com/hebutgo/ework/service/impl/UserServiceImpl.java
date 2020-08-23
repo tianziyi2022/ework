@@ -70,12 +70,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user0.setPhone(userRegisterRequest.getPhone());
         user0.setUserName(userRegisterRequest.getUserName());
         user0.setStatus(10);
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.setEntity(user0);
         userMapper.insert(user0);
         QueryWrapper queryWrapper1 = new QueryWrapper();
-        queryWrapper1.setEntity(user0);
-        QueryWrapper queryWrapper2 = new QueryWrapper();
         queryWrapper1.setEntity(user0);
         User user1 = userMapper.selectOne(queryWrapper1);
         RegisterVo registerVo = new RegisterVo();
@@ -167,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         //修改信息后需重新登陆
         user.setToken("");
-        user.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         userMapper.updateById(user);
         ChangeDetailVo changeDetailVo = new ChangeDetailVo();
         changeDetailVo.setId(user.getId());
@@ -192,7 +188,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BizException("未登陆或登陆超时");
         }
         user.setToken("");
-        user.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         userMapper.updateById(user);
         LogoutVo logoutVo = new LogoutVo();
         logoutVo.setType(20);
@@ -217,7 +213,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         user.setToken("");
         user.setStatus(0);
-        user.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         userMapper.updateById(user);
         LogoutVo logoutVo = new LogoutVo();
         logoutVo.setType(20);

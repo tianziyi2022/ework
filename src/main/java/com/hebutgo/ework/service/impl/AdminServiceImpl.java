@@ -133,7 +133,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             throw new BizException("密码不正确");
         }
         admin1.setToken("admin-token-" + UUID.randomUUID());
-        admin1.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        admin1.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.setEntity(admins1);
         adminMapper.update(admin1, updateWrapper);
@@ -176,7 +176,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         //修改信息后需重新登陆
         admin.setToken("");
         //更新时间
-        admin.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        admin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         adminMapper.updateById(admin);
         ChangeDetailVo changeDetailVo = new ChangeDetailVo();
         changeDetailVo.setId(admin.getId());
@@ -201,7 +201,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             throw new BizException("未登陆或登陆超时");
         }
         admin.setToken("");
-        admin.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        admin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         adminMapper.updateById(admin);
         LogoutVo logoutVo = new LogoutVo();
         logoutVo.setType(10);
@@ -226,7 +226,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         }
         admin.setToken("");
         admin.setStatus(0);
-        admin.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        admin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         adminMapper.updateById(admin);
         LogoutVo logoutVo = new LogoutVo();
         logoutVo.setType(10);
