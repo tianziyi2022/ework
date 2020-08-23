@@ -42,6 +42,9 @@ public class GroupAdmin extends Model<GroupAdmin> {
     @ApiModelProperty(value = "关系编号（系统自动生成）")
     private String code;
 
+    @ApiModelProperty(value = "是否被删除（0未被删除/有效，1被删除/无效）")
+    private String iDelete;
+
     @ApiModelProperty(value = "创建时间")
     private Timestamp createTime;
 

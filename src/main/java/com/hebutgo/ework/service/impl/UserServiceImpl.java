@@ -5,10 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.User;
-import com.hebutgo.ework.entity.request.AdminRegisterRequest;
-import com.hebutgo.ework.entity.request.LoginRequest;
-import com.hebutgo.ework.entity.request.UserRegisterRequest;
+import com.hebutgo.ework.entity.request.*;
+import com.hebutgo.ework.entity.vo.ChangeDetailVo;
 import com.hebutgo.ework.entity.vo.LoginVo;
+import com.hebutgo.ework.entity.vo.LogoutVo;
 import com.hebutgo.ework.entity.vo.RegisterVo;
 import com.hebutgo.ework.mapper.UserMapper;
 import com.hebutgo.ework.service.IUserService;
@@ -16,6 +16,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -123,6 +126,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BizException("密码不正确");
         }
         user1.setToken("user-token-" + UUID.randomUUID());
+        user1.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.setEntity(users1);
         userMapper.update(user1, updateWrapper);
@@ -134,4 +138,90 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return loginVo;
     }
 
+    @Override
+    public ChangeDetailVo changeDetail(ChangeDetailRequest changeDetailRequest) {
+        if(changeDetailRequest.getType()!=20){
+            throw new BizException("用户类型错误");
+        }
+        User user = userMapper.selectById(changeDetailRequest.getId());
+        if(Objects.isNull(user)){
+            throw new BizException("用户不存在");
+        }
+        if(user.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!user.getToken().equals(changeDetailRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        if(!"".equals(changeDetailRequest.getPassword())){
+            user.setPassword(changeDetailRequest.getPassword());
+        }
+        if(!"".equals(changeDetailRequest.getPhone())){
+            user.setPhone(changeDetailRequest.getPhone());
+        }
+        if(!"".equals(changeDetailRequest.getSchoolId())){
+            user.setStudentId(changeDetailRequest.getSchoolId());
+        }
+        if(!"".equals(changeDetailRequest.getUserName())){
+            user.setUserName(changeDetailRequest.getUserName());
+        }
+        //修改信息后需重新登陆
+        user.setToken("");
+        user.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        userMapper.updateById(user);
+        ChangeDetailVo changeDetailVo = new ChangeDetailVo();
+        changeDetailVo.setId(user.getId());
+        changeDetailVo.setType(20);
+        changeDetailVo.setUserName(user.getUserName());
+        return changeDetailVo;
+    }
+
+    @Override
+    public LogoutVo quit(LogoutRequest logoutRequest) {
+        if(logoutRequest.getType()!=20){
+            throw new BizException("用户类型错误");
+        }
+        User user = userMapper.selectById(logoutRequest.getId());
+        if(Objects.isNull(user)){
+            throw new BizException("用户不存在");
+        }
+        if(user.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!user.getToken().equals(logoutRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        user.setToken("");
+        user.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        userMapper.updateById(user);
+        LogoutVo logoutVo = new LogoutVo();
+        logoutVo.setType(20);
+        logoutVo.setTopic("安全退出成功！");
+        return logoutVo;
+    }
+
+    @Override
+    public LogoutVo logout(LogoutRequest logoutRequest) {
+        if(logoutRequest.getType()!=20){
+            throw new BizException("用户类型错误");
+        }
+        User user = userMapper.selectById(logoutRequest.getId());
+        if(Objects.isNull(user)){
+            throw new BizException("用户不存在");
+        }
+        if(user.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!user.getToken().equals(logoutRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        user.setToken("");
+        user.setStatus(0);
+        user.setUpdateTime(Timestamp.valueOf(LocalDateTime.now().toString().replace('T',' ')));
+        userMapper.updateById(user);
+        LogoutVo logoutVo = new LogoutVo();
+        logoutVo.setType(20);
+        logoutVo.setTopic("注销成功！");
+        return logoutVo;
+    }
 }

@@ -45,6 +45,9 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "作业内容描述")
     private String description;
 
+    @ApiModelProperty(value = "附件链接")
+    private String appendixUrl;
+
     @ApiModelProperty(value = "备注")
     private String note;
 
