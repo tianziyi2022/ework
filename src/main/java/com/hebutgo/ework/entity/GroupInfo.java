@@ -19,13 +19,13 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author tianziyi
- * @since 2020-08-22
+ * @since 2020-08-24
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="Group对象", description="小组信息表")
-public class Group extends Model<Group> {
+@ApiModel(value="GroupInfo对象", description="小组信息表")
+public class GroupInfo extends Model<GroupInfo> {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,7 +46,7 @@ public class Group extends Model<Group> {
     private Integer createAdmin;
 
     @ApiModelProperty(value = "小组描述")
-    private String description;
+    private String descriptions;
 
     @ApiModelProperty(value = "备注")
     private String note;

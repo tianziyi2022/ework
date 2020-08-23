@@ -1,6 +1,6 @@
 package com.hebutgo.ework.mapper;
 
-import com.hebutgo.ework.entity.Group;
+import com.hebutgo.ework.entity.GroupInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author tianziyi
- * @since 2020-08-22
+ * @since 2020-08-24
  */
-public interface GroupMapper extends BaseMapper<Group> {
+public interface GroupInfoMapper extends BaseMapper<GroupInfo> {
 
 }

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hebutgo.ework.mapper.GroupMapper">
+<mapper namespace="com.hebutgo.ework.mapper.GroupInfoMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.hebutgo.ework.entity.Group">
+    <resultMap id="BaseResultMap" type="com.hebutgo.ework.entity.GroupInfo">
         <id column="id" property="id" />
         <result column="group_id" property="groupId" />
         <result column="group_name" property="groupName" />
         <result column="group_code" property="groupCode" />
         <result column="create_admin" property="createAdmin" />
-        <result column="description" property="description" />
+        <result column="descriptions" property="descriptions" />
         <result column="note" property="note" />
         <result column="status" property="status" />
         <result column="create_time" property="createTime" />
