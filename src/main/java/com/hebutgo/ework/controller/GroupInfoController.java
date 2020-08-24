@@ -8,7 +8,9 @@ import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.GroupInfo;
 import com.hebutgo.ework.entity.request.ChangeGroupRequest;
 import com.hebutgo.ework.entity.request.CreateGroupRequest;
+import com.hebutgo.ework.entity.request.GroupDetailRequest;
 import com.hebutgo.ework.entity.vo.CreateGroupVo;
+import com.hebutgo.ework.entity.vo.GroupDetailVo;
 import com.hebutgo.ework.service.IGroupInfoService;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -69,5 +71,24 @@ public class GroupInfoController {
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
         return ApiResponse.success(createGroupVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "查询小组信息",tags = CommonConstant.GROUP)
+    @PostMapping("/detail")
+    public ApiResponse<GroupDetailVo> detail(
+            @RequestBody GroupDetailRequest groupDetailRequest
+            ){
+        GroupDetailVo groupDetailVo;
+        try{
+            groupDetailVo = iGroupInfoService.detail(groupDetailRequest);
+        }catch (BizException e) {
+            logger.error("获取小组信息失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("获取小组信息失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(groupDetailVo);
     }
 }

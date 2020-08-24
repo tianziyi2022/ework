@@ -6,7 +6,9 @@ import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.GroupInfo;
 import com.hebutgo.ework.entity.request.ChangeGroupRequest;
 import com.hebutgo.ework.entity.request.CreateGroupRequest;
+import com.hebutgo.ework.entity.request.GroupDetailRequest;
 import com.hebutgo.ework.entity.vo.CreateGroupVo;
+import com.hebutgo.ework.entity.vo.GroupDetailVo;
 import com.hebutgo.ework.mapper.AdminMapper;
 import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.service.IGroupInfoService;
@@ -135,5 +137,51 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
         createGroupVo.setGroupId(group1.getGroupId());
         createGroupVo.setGroupName(group1.getGroupName());
         return createGroupVo;
+    }
+
+    @Override
+    public GroupDetailVo detail(GroupDetailRequest groupDetailRequest) {
+        GroupDetailVo groupDetailVo = new GroupDetailVo();
+        GroupInfo group;
+        if(groupDetailRequest.getId()!=0){
+            group = groupInfoMapper.selectById(groupDetailRequest.getId());
+            if(Objects.isNull(group)){
+                throw new BizException("不存在符合条件的小组");
+            }
+            if(!"".equals(groupDetailRequest.getGroupCode())){
+                if(!groupDetailRequest.getGroupCode().equals(group.getGroupCode())){
+                    throw new BizException("不存在符合条件的小组");
+                }
+            }
+            if(!"".equals(groupDetailRequest.getGroupId())){
+                if(!groupDetailRequest.getGroupId().equals(group.getGroupId())){
+                    throw new BizException("不存在符合条件的小组");
+                }
+            }
+        } else {
+            QueryWrapper<GroupInfo> groupInfoQueryWrapper = new QueryWrapper<>();
+            GroupInfo groupInfo = new GroupInfo();
+            boolean flag = true;
+            if(!"".equals(groupDetailRequest.getGroupCode())){
+                groupInfo.setGroupCode(groupDetailRequest.getGroupCode());
+                flag = false;
+            }
+            if(!"".equals(groupDetailRequest.getGroupId())){
+                groupInfo.setGroupId(groupDetailRequest.getGroupId());
+                flag = false;
+            }
+            if(flag){
+                throw new BizException("未输入查询条件");
+            }
+            groupInfoQueryWrapper.setEntity(groupInfo);
+            group = groupInfoMapper.selectOne(groupInfoQueryWrapper);
+        }
+        groupDetailVo.setId(group.getId());
+        groupDetailVo.setCreateAdminName(adminMapper.selectById(group.getCreateAdmin()).getUserName());
+        groupDetailVo.setDescriptions(group.getDescriptions());
+        groupDetailVo.setGroupCode(group.getGroupCode());
+        groupDetailVo.setGroupName(group.getGroupName());
+        groupDetailVo.setStatus(group.getStatus());
+        return groupDetailVo;
     }
 }
