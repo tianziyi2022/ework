@@ -1,6 +1,8 @@
 package com.hebutgo.ework.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 
@@ -48,6 +50,7 @@ public class User extends Model<User> {
     @ApiModelProperty(value = "昵称")
     private String userName;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "用户所在组")
     private Integer groupId;
 

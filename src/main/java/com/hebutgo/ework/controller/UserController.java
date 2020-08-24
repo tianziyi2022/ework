@@ -1,12 +1,8 @@
 package com.hebutgo.ework.controller;
 
 
-import com.hebutgo.ework.entity.request.ChangeDetailRequest;
-import com.hebutgo.ework.entity.request.LoginRequest;
-import com.hebutgo.ework.entity.request.LogoutRequest;
-import com.hebutgo.ework.entity.vo.ChangeDetailVo;
-import com.hebutgo.ework.entity.vo.LoginVo;
-import com.hebutgo.ework.entity.vo.LogoutVo;
+import com.hebutgo.ework.entity.request.*;
+import com.hebutgo.ework.entity.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.hebutgo.ework.common.ApiResponse;
@@ -14,8 +10,6 @@ import com.hebutgo.ework.common.CommonConstant;
 import com.hebutgo.ework.common.ErrorCodeEnum;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.User;
-import com.hebutgo.ework.entity.request.UserRegisterRequest;
-import com.hebutgo.ework.entity.vo.RegisterVo;
 import com.hebutgo.ework.service.IUserService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,5 +126,43 @@ public class UserController {
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
         return ApiResponse.success(logoutVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "用户加入小组", tags = CommonConstant.USER_ACCOUNT)
+    @PostMapping("/joinGroup")
+    public ApiResponse<JoinGroupVo> joinGroup(
+            @RequestBody JoinGroupRequest joinGroupRequest
+            ) {
+        JoinGroupVo joinGroupVo;
+        try {
+            joinGroupVo = iUserService.joinGroup(joinGroupRequest);
+        } catch (BizException e) {
+            logger.error("用户加入小组失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("用户加入小组失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(joinGroupVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "用户退出小组", tags = CommonConstant.USER_ACCOUNT)
+    @PostMapping("/quitGroup")
+    public ApiResponse<JoinGroupVo> quitGroup(
+            @RequestBody JoinGroupRequest joinGroupRequest
+    ) {
+        JoinGroupVo joinGroupVo;
+        try {
+            joinGroupVo = iUserService.quitGroup(joinGroupRequest);
+        } catch (BizException e) {
+            logger.error("用户退出小组失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("用户退出小组失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(joinGroupVo);
     }
 }

@@ -4,12 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
+import com.hebutgo.ework.entity.GroupInfo;
 import com.hebutgo.ework.entity.User;
 import com.hebutgo.ework.entity.request.*;
-import com.hebutgo.ework.entity.vo.ChangeDetailVo;
-import com.hebutgo.ework.entity.vo.LoginVo;
-import com.hebutgo.ework.entity.vo.LogoutVo;
-import com.hebutgo.ework.entity.vo.RegisterVo;
+import com.hebutgo.ework.entity.vo.*;
+import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.mapper.UserMapper;
 import com.hebutgo.ework.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -35,6 +34,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Resource
     UserMapper userMapper;
+
+    @Resource
+    GroupInfoMapper groupInfoMapper;
 
     @Override
     public RegisterVo register(UserRegisterRequest userRegisterRequest) {
@@ -219,5 +221,69 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         logoutVo.setType(20);
         logoutVo.setTopic("注销成功！");
         return logoutVo;
+    }
+
+    @Override
+    public JoinGroupVo joinGroup(JoinGroupRequest joinGroupRequest) {
+        if(joinGroupRequest.getType()!=20){
+            throw new BizException("用户类型错误");
+        }
+        User user = userMapper.selectById(joinGroupRequest.getId());
+        if(Objects.isNull(user)){
+            throw new BizException("用户不存在");
+        }
+        if(user.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(user.getToken(), joinGroupRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        if(!Objects.isNull(user.getGroupId())){
+            throw new BizException("用户已在小组中");
+        }
+        GroupInfo group = groupInfoMapper.selectById(joinGroupRequest.getGroupId());
+        if(Objects.isNull(group)||(group.getStatus()!=30&&group.getStatus()!=40)){
+            throw new BizException("小组不存在或未开放加入");
+        }
+        user.setGroupId(joinGroupRequest.getGroupId());
+        user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        userMapper.updateById(user);
+        JoinGroupVo joinGroupVo = new JoinGroupVo();
+        joinGroupVo.setGroupName(group.getGroupName());
+        joinGroupVo.setId(group.getId());
+        joinGroupVo.setTopic("成功加入小组");
+        return joinGroupVo;
+    }
+
+    @Override
+    public JoinGroupVo quitGroup(JoinGroupRequest joinGroupRequest) {
+        if(joinGroupRequest.getType()!=20){
+            throw new BizException("用户类型错误");
+        }
+        User user = userMapper.selectById(joinGroupRequest.getId());
+        if(Objects.isNull(user)){
+            throw new BizException("用户不存在");
+        }
+        if(user.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(user.getToken(), joinGroupRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        if(Objects.isNull(user.getGroupId())){
+            throw new BizException("用户未加入小组");
+        }
+        GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+        if(Objects.isNull(group)||(group.getStatus()!=30&&group.getStatus()!=40)){
+            throw new BizException("小组不存在或未开放退出");
+        }
+        user.setGroupId(null);
+        user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        userMapper.updateById(user);
+        JoinGroupVo joinGroupVo = new JoinGroupVo();
+        joinGroupVo.setGroupName(group.getGroupName());
+        joinGroupVo.setId(group.getId());
+        joinGroupVo.setTopic("成功退出小组");
+        return joinGroupVo;
     }
 }
