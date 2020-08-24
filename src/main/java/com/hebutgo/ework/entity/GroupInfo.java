@@ -51,7 +51,7 @@ public class GroupInfo extends Model<GroupInfo> {
     @ApiModelProperty(value = "备注")
     private String note;
 
-    @ApiModelProperty(value = "状态（0未开放加入，10只允许管理员加入，20只允许学生加入，30允许管理员和学生加入）")
+    @ApiModelProperty(value = "状态（10未开放加入，20只允许管理员加入，30只允许学生加入，40允许管理员和学生加入，80停用，100已删除）")
     private Integer status;
 
     @ApiModelProperty(value = "创建时间")

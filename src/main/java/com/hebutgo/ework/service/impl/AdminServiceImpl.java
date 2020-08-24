@@ -158,7 +158,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         if(admin.getStatus()!=10) {
             throw new BizException("用户状态异常");
         }
-        if(!admin.getToken().equals(changeDetailRequest.getToken())){
+        if(!Objects.equals(admin.getToken(), changeDetailRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
         if(!"".equals(changeDetailRequest.getPassword())){
@@ -197,7 +197,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         if(admin.getStatus()!=10) {
             throw new BizException("用户状态异常");
         }
-        if(!admin.getToken().equals(logoutRequest.getToken())){
+        if(!Objects.equals(admin.getToken(), logoutRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
         admin.setToken("");
@@ -221,7 +221,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         if(admin.getStatus()!=10) {
             throw new BizException("用户状态异常");
         }
-        if(!admin.getToken().equals(logoutRequest.getToken())){
+        if(!Objects.equals(admin.getToken(), logoutRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
         admin.setToken("");

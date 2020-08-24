@@ -8,9 +8,8 @@ import lombok.Data;
  * @author tianziyi
  */
 @Data
-@ApiModel(value = "管理员新建小组信息请求参数")
-public class CreateGroupRequest {
-
+@ApiModel(value = "管理员修改小组信息请求参数")
+public class ChangeGroupRequest {
     @ApiModelProperty(value = "用户id")
     private Integer id;
 
@@ -19,6 +18,9 @@ public class CreateGroupRequest {
 
     @ApiModelProperty(value = "登陆令牌token")
     private String token;
+
+    @ApiModelProperty(value = "小组自增id")
+    private Integer groupId;
 
     @ApiModelProperty(value = "小组名称")
     private String groupName;
@@ -29,4 +31,6 @@ public class CreateGroupRequest {
     @ApiModelProperty(value = "小组描述")
     private String description;
 
+    @ApiModelProperty(value = "小组状态")
+    private Integer status;
 }

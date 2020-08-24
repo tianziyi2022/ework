@@ -2,6 +2,7 @@ package com.hebutgo.ework.service;
 
 import com.hebutgo.ework.entity.GroupInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hebutgo.ework.entity.request.ChangeGroupRequest;
 import com.hebutgo.ework.entity.request.CreateGroupRequest;
 import com.hebutgo.ework.entity.vo.CreateGroupVo;
 
@@ -15,4 +16,5 @@ import com.hebutgo.ework.entity.vo.CreateGroupVo;
  */
 public interface IGroupInfoService extends IService<GroupInfo> {
     CreateGroupVo create(CreateGroupRequest createGroupRequest);
+    CreateGroupVo change(ChangeGroupRequest changeGroupRequest);
 }

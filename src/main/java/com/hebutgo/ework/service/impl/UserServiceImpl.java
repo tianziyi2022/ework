@@ -146,7 +146,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(user.getStatus()!=10) {
             throw new BizException("用户状态异常");
         }
-        if(!user.getToken().equals(changeDetailRequest.getToken())){
+        if(!Objects.equals(user.getToken(), changeDetailRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
         if(!"".equals(changeDetailRequest.getPassword())){
@@ -184,7 +184,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(user.getStatus()!=10) {
             throw new BizException("用户状态异常");
         }
-        if(!user.getToken().equals(logoutRequest.getToken())){
+        if(!Objects.equals(user.getToken(), logoutRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
         user.setToken("");
@@ -208,7 +208,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(user.getStatus()!=10) {
             throw new BizException("用户状态异常");
         }
-        if(!user.getToken().equals(logoutRequest.getToken())){
+        if(!Objects.equals(user.getToken(), logoutRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
         user.setToken("");

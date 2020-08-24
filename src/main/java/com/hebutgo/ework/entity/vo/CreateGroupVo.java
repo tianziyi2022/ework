@@ -1,20 +1,18 @@
 package com.hebutgo.ework.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
  * <p>
- *  管理员新建组返回类
+ *  管理员新建组/修改组返回类
  * </p>
  *
  * @author tianziyi
  */
 @Data
-@ApiModel(value = "新建组")
+@ApiModel(value = "新建组/修改小组信息")
 public class CreateGroupVo {
 
     @ApiModelProperty(value = "自增id")
@@ -28,4 +26,5 @@ public class CreateGroupVo {
 
     @ApiModelProperty(value = "小组邀请码（创建小组时填写）")
     private String groupCode;
+
 }
