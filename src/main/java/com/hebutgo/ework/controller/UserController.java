@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/ework/user")
 public class UserController {
 
-
     Logger logger = LoggerFactory.getLogger(User.class);
 
     @Autowired
@@ -129,7 +128,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "用户加入小组", tags = CommonConstant.USER_ACCOUNT)
+    @ApiOperation(value = "用户加入小组", tags = CommonConstant.USER_GROUP)
     @PostMapping("/joinGroup")
     public ApiResponse<JoinGroupVo> joinGroup(
             @RequestBody JoinGroupRequest joinGroupRequest
@@ -148,7 +147,7 @@ public class UserController {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "用户退出小组", tags = CommonConstant.USER_ACCOUNT)
+    @ApiOperation(value = "用户退出小组", tags = CommonConstant.USER_GROUP)
     @PostMapping("/quitGroup")
     public ApiResponse<JoinGroupVo> quitGroup(
             @RequestBody JoinGroupRequest joinGroupRequest
