@@ -164,4 +164,24 @@ public class UserController {
         }
         return ApiResponse.success(joinGroupVo);
     }
+
+    @CrossOrigin
+    @ApiOperation(value = "用户查看账户信息", tags = CommonConstant.USER_ACCOUNT)
+    @PostMapping("/detail")
+    public ApiResponse<UserDetailVo> detail(
+            @RequestBody AccountDetailRequest accountDetailRequest
+    ) {
+        UserDetailVo userDetailVo;
+        try {
+            userDetailVo = iUserService.detail(accountDetailRequest);
+        } catch (BizException e) {
+            logger.error("修改账户信息失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("修改账户信息失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(userDetailVo);
+    }
+
 }

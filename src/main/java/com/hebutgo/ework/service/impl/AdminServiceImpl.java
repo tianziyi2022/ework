@@ -4,16 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
+import com.hebutgo.ework.entity.GroupAdmin;
+import com.hebutgo.ework.entity.GroupInfo;
 import com.hebutgo.ework.entity.User;
-import com.hebutgo.ework.entity.request.AdminRegisterRequest;
-import com.hebutgo.ework.entity.request.ChangeDetailRequest;
-import com.hebutgo.ework.entity.request.LoginRequest;
-import com.hebutgo.ework.entity.request.LogoutRequest;
-import com.hebutgo.ework.entity.vo.ChangeDetailVo;
-import com.hebutgo.ework.entity.vo.LoginVo;
-import com.hebutgo.ework.entity.vo.LogoutVo;
-import com.hebutgo.ework.entity.vo.RegisterVo;
+import com.hebutgo.ework.entity.request.*;
+import com.hebutgo.ework.entity.vo.*;
 import com.hebutgo.ework.mapper.AdminMapper;
+import com.hebutgo.ework.mapper.GroupAdminMapper;
+import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.service.IAdminService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.tomcat.jni.Time;
@@ -26,6 +24,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -42,6 +42,12 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Resource
     AdminMapper adminMapper;
+
+    @Resource
+    GroupInfoMapper groupInfoMapper;
+
+    @Resource
+    GroupAdminMapper groupAdminMapper;
 
     @Override
     public RegisterVo register(AdminRegisterRequest adminRegisterRequest) {
@@ -234,4 +240,64 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         return logoutVo;
     }
 
+    @Override
+    public AdminDetailVo detail(AccountDetailRequest accountDetailRequest) {
+        if(accountDetailRequest.getType()!=10){
+            throw new BizException("用户类型错误");
+        }
+        Admin admin = adminMapper.selectById(accountDetailRequest.getId());
+        if(Objects.isNull(admin)){
+            throw new BizException("用户不存在");
+        }
+        if(admin.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(admin.getToken(), accountDetailRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        AdminDetailVo adminDetailVo = new AdminDetailVo();
+        adminDetailVo.setAdminId(admin.getAdminId());
+        String phone = admin.getPhone().substring(0,3)+"****"+admin.getPhone().substring(7);
+        adminDetailVo.setPhone(phone);
+        adminDetailVo.setUserName(admin.getUserName());
+        GroupInfo groupInfo = new GroupInfo();
+        groupInfo.setCreateAdmin(admin.getId());
+        QueryWrapper<GroupInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(groupInfo);
+        List<GroupInfo> createGroupInfoList = groupInfoMapper.selectList(queryWrapper);
+        List<GroupDetailVo> createGroupDetailVoList = new ArrayList<>();
+        for(GroupInfo group:createGroupInfoList){
+            GroupDetailVo groupDetailVo = new GroupDetailVo();
+            groupDetailVo.setId(group.getId());
+            groupDetailVo.setCreateAdminName(admin.getUserName());
+            groupDetailVo.setDescriptions(group.getDescriptions());
+            groupDetailVo.setGroupCode(group.getGroupCode());
+            groupDetailVo.setGroupName(group.getGroupName());
+            groupDetailVo.setStatus(group.getStatus());
+            createGroupDetailVoList.add(groupDetailVo);
+        }
+        adminDetailVo.setCreateGroupCount(createGroupDetailVoList.size());
+        adminDetailVo.setCreateGroupDetailVoList(createGroupDetailVoList);
+        GroupAdmin groupAdmin0 = new GroupAdmin();
+        groupAdmin0.setAdminId(admin.getId());
+        groupAdmin0.setIsDelete(0);
+        QueryWrapper<GroupAdmin> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.setEntity(groupAdmin0);
+        List<GroupAdmin> groupAdminList = groupAdminMapper.selectList(queryWrapper1);
+        List<GroupDetailVo> adminGroupDetailVoList = new ArrayList<>();
+        for(GroupAdmin groupAdmin:groupAdminList){
+            GroupInfo group = groupInfoMapper.selectById(groupAdmin.getGroupId());
+            GroupDetailVo groupDetailVo = new GroupDetailVo();
+            groupDetailVo.setId(group.getId());
+            groupDetailVo.setCreateAdminName(adminMapper.selectById(group.getCreateAdmin()).getUserName());
+            groupDetailVo.setDescriptions(group.getDescriptions());
+            groupDetailVo.setGroupCode(group.getGroupCode());
+            groupDetailVo.setGroupName(group.getGroupName());
+            groupDetailVo.setStatus(group.getStatus());
+            adminGroupDetailVoList.add(groupDetailVo);
+        }
+        adminDetailVo.setAdminGroupCount(adminGroupDetailVoList.size());
+        adminDetailVo.setAdminGroupDetailVoList(adminGroupDetailVoList);
+        return adminDetailVo;
+    }
 }

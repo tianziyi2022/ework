@@ -6,14 +6,8 @@ import com.hebutgo.ework.common.CommonConstant;
 import com.hebutgo.ework.common.ErrorCodeEnum;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
-import com.hebutgo.ework.entity.request.AdminRegisterRequest;
-import com.hebutgo.ework.entity.request.ChangeDetailRequest;
-import com.hebutgo.ework.entity.request.LoginRequest;
-import com.hebutgo.ework.entity.request.LogoutRequest;
-import com.hebutgo.ework.entity.vo.ChangeDetailVo;
-import com.hebutgo.ework.entity.vo.LoginVo;
-import com.hebutgo.ework.entity.vo.LogoutVo;
-import com.hebutgo.ework.entity.vo.RegisterVo;
+import com.hebutgo.ework.entity.request.*;
+import com.hebutgo.ework.entity.vo.*;
 import com.hebutgo.ework.service.IAdminService;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
@@ -131,5 +125,24 @@ public class AdminController {
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
         return ApiResponse.success(logoutVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员查看账户信息", tags = CommonConstant.ADMIN_ACCOUNT)
+    @PostMapping("/detail")
+    public ApiResponse<AdminDetailVo> detail(
+            @RequestBody AccountDetailRequest accountDetailRequest
+    ) {
+        AdminDetailVo adminDetailVo;
+        try {
+            adminDetailVo = iAdminService.detail(accountDetailRequest);
+        } catch (BizException e) {
+            logger.error("修改账户信息失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("修改账户信息失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        return ApiResponse.success(adminDetailVo);
     }
 }

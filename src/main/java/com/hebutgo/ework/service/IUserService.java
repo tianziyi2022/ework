@@ -21,4 +21,5 @@ public interface IUserService extends IService<User> {
     public LogoutVo logout(LogoutRequest logoutRequest);
     public JoinGroupVo joinGroup(JoinGroupRequest joinGroupRequest);
     public JoinGroupVo quitGroup(JoinGroupRequest joinGroupRequest);
+    public UserDetailVo detail(AccountDetailRequest accountDetailRequest);
 }

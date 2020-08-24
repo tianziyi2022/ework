@@ -286,4 +286,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         joinGroupVo.setTopic("成功退出小组");
         return joinGroupVo;
     }
+
+    @Override
+    public UserDetailVo detail(AccountDetailRequest accountDetailRequest) {
+        if(accountDetailRequest.getType()!=20){
+            throw new BizException("用户类型错误");
+        }
+        User user = userMapper.selectById(accountDetailRequest.getId());
+        if(Objects.isNull(user)){
+            throw new BizException("用户不存在");
+        }
+        if(user.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(user.getToken(), accountDetailRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        UserDetailVo userDetailVo = new UserDetailVo();
+        if(Objects.isNull(user.getGroupId())){
+            userDetailVo.setGroupCode("-");
+            userDetailVo.setGroupId(0);
+            userDetailVo.setGroupName("未加入小组");
+        } else {
+            GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+            userDetailVo.setGroupId(user.getGroupId());
+            userDetailVo.setGroupName(group.getGroupName());
+            userDetailVo.setGroupCode(group.getGroupCode());
+        }
+        String phone = user.getPhone().substring(0,3)+"****"+user.getPhone().substring(7);
+        userDetailVo.setPhone(phone);
+        userDetailVo.setStudentId(user.getStudentId());
+        userDetailVo.setUserName(user.getUserName());
+        userDetailVo.setStatus(user.getStatus());
+        return userDetailVo;
+    }
 }
