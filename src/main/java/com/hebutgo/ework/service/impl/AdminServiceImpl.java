@@ -53,28 +53,40 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     public RegisterVo register(AdminRegisterRequest adminRegisterRequest) {
         Admin admin0 = new Admin();
         admin0.setUserId(adminRegisterRequest.getUserId());
-        admin0.setStatus(10);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.setEntity(admin0);
         Admin admin = adminMapper.selectOne(queryWrapper);
-        if (!Objects.isNull(admin)) {
-            throw new BizException("该用户名已被注册");
+        if (!Objects.isNull(admin)){
+            if(admin.getStatus().equals(10)) {
+                throw new BizException("该用户名已被注册");
+            }else{
+                admin.setUserId("admin-unvalid-userId-" + UUID.randomUUID());
+                adminMapper.updateById(admin);
+            }
         }
         admin0 = new Admin();
         admin0.setPhone(adminRegisterRequest.getPhone());
-        admin0.setStatus(10);
         queryWrapper.setEntity(admin0);
         admin = adminMapper.selectOne(queryWrapper);
         if (!Objects.isNull(admin)) {
-            throw new BizException("该电话号码已注册");
+            if(admin.getStatus().equals(10)) {
+                throw new BizException("该电话号码已注册");
+            }else{
+                admin.setPhone("admin-unvalid-phone-" + UUID.randomUUID());
+                adminMapper.updateById(admin);
+            }
         }
         admin0 = new Admin();
         admin0.setAdminId(adminRegisterRequest.getAdminId());
-        admin0.setStatus(10);
         queryWrapper.setEntity(admin0);
         admin = adminMapper.selectOne(queryWrapper);
         if (!Objects.isNull(admin)) {
-            throw new BizException("该学工号已注册");
+            if(admin.getStatus().equals(10)) {
+                throw new BizException("该学工号已注册");
+            }else{
+                admin.setAdminId("admin-unvalid-adminId-" + UUID.randomUUID());
+                adminMapper.updateById(admin);
+            }
         }
         admin0 = new Admin();
         admin0.setUserId(adminRegisterRequest.getUserId());
@@ -87,8 +99,6 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         updateWrapper.setEntity(admin0);
         adminMapper.insert(admin0);
         QueryWrapper queryWrapper1 = new QueryWrapper();
-        queryWrapper1.setEntity(admin0);
-        QueryWrapper queryWrapper2 = new QueryWrapper();
         queryWrapper1.setEntity(admin0);
         Admin admin1 = adminMapper.selectOne(queryWrapper1);
         RegisterVo registerVo = new RegisterVo();

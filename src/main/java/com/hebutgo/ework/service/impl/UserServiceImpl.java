@@ -42,28 +42,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public RegisterVo register(UserRegisterRequest userRegisterRequest) {
         User user0 = new User();
         user0.setUserId(userRegisterRequest.getUserId());
-        user0.setStatus(10);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.setEntity(user0);
         User user = userMapper.selectOne(queryWrapper);
         if (!Objects.isNull(user)) {
-            throw new BizException("该用户名已被注册");
+            if(user.getStatus().equals(10)) {
+                throw new BizException("该用户名已被注册");
+            }else{
+                user.setUserId("user-unvalid-userId-" + UUID.randomUUID());
+                userMapper.updateById(user);
+            }
         }
         user0 = new User();
         user0.setPhone(userRegisterRequest.getPhone());
-        user0.setStatus(10);
         queryWrapper.setEntity(user0);
         user = userMapper.selectOne(queryWrapper);
         if (!Objects.isNull(user)) {
-            throw new BizException("该电话号码已注册");
+            if(user.getStatus().equals(10)) {
+                throw new BizException("该电话号码已注册");
+            }else{
+                user.setPhone("user-unvalid-phone-" + UUID.randomUUID());
+                userMapper.updateById(user);
+            }
         }
         user0 = new User();
         user0.setStudentId(userRegisterRequest.getStudentId());
-        user0.setStatus(10);
         queryWrapper.setEntity(user0);
         user = userMapper.selectOne(queryWrapper);
         if (!Objects.isNull(user)) {
-            throw new BizException("该学号已注册");
+            if(user.getStatus().equals(10)) {
+                throw new BizException("该学号已注册");
+            }else{
+                user.setStudentId("user-unvalid-studentId-" + UUID.randomUUID());
+                userMapper.updateById(user);
+            }
         }
         user0 = new User();
         user0.setUserId(userRegisterRequest.getUserId());
