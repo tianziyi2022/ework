@@ -1,10 +1,10 @@
 package com.hebutgo.ework.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author tianziyi
- * @since 2020-08-22
+ * @since 2020-08-26
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -45,8 +45,9 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "作业内容描述")
     private String description;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件链接")
-    private String appendixUrl;
+    private Integer appendixUrl;
 
     @ApiModelProperty(value = "备注")
     private String note;
@@ -55,10 +56,10 @@ public class WorkDemand extends Model<WorkDemand> {
     private Integer status;
 
     @ApiModelProperty(value = "开始（收作业）时间")
-    private Timestamp startTime;
+    private LocalDateTime startTime;
 
     @ApiModelProperty(value = "结束（收作业）时间")
-    private Timestamp endTime;
+    private LocalDateTime endTime;
 
     @ApiModelProperty(value = "发放学生计数")
     private Integer studentCount;
@@ -69,11 +70,9 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "发放小组id")
     private Integer groupId;
 
-    @ApiModelProperty(value = "创建时间")
-    private Timestamp createTime;
+    private LocalDateTime createTime;
 
-    @ApiModelProperty(value = "修改时间")
-    private Timestamp updateTime;
+    private LocalDateTime updateTime;
 
 
     @Override

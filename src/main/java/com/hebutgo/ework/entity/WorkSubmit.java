@@ -1,10 +1,10 @@
 package com.hebutgo.ework.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author tianziyi
- * @since 2020-08-22
+ * @since 2020-08-26
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -48,20 +48,25 @@ public class WorkSubmit extends Model<WorkSubmit> {
     @ApiModelProperty(value = "作业内容")
     private String text;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件1链接")
-    private String appendixUrl1;
+    private Integer appendixUrl1;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件2链接")
-    private String appendixUrl2;
+    private Integer appendixUrl2;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件3链接")
-    private String appendixUrl3;
+    private Integer appendixUrl3;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件4链接")
-    private String appendixUrl4;
+    private Integer appendixUrl4;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件5链接")
-    private String appendixUrl5;
+    private Integer appendixUrl5;
 
     @ApiModelProperty(value = "备注")
     private String note;
@@ -79,10 +84,10 @@ public class WorkSubmit extends Model<WorkSubmit> {
     private Integer status;
 
     @ApiModelProperty(value = "创建时间")
-    private Timestamp createTime;
+    private LocalDateTime createTime;
 
     @ApiModelProperty(value = "修改时间")
-    private Timestamp updateTime;
+    private LocalDateTime updateTime;
 
 
     @Override
