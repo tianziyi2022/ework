@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -70,9 +72,11 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "发放小组id")
     private Integer groupId;
 
-    private LocalDateTime createTime;
+    @ApiModelProperty(value = "创建时间")
+    private Timestamp createTime;
 
-    private LocalDateTime updateTime;
+    @ApiModelProperty(value = "修改时间")
+    private Timestamp updateTime;
 
 
     @Override

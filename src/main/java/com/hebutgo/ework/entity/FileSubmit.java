@@ -3,6 +3,8 @@ package com.hebutgo.ework.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
@@ -40,9 +42,11 @@ public class FileSubmit extends Model<FileSubmit> {
     @ApiModelProperty(value = "是否被删除（0未删除/有效，1已删除/无效）")
     private Integer isDelete;
 
-    private LocalDateTime createTime;
+    @ApiModelProperty(value = "创建时间")
+    private Timestamp createTime;
 
-    private LocalDateTime updateTime;
+    @ApiModelProperty(value = "修改时间")
+    private Timestamp updateTime;
 
 
     @Override

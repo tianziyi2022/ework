@@ -149,12 +149,12 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
                 throw new BizException("不存在符合条件的小组");
             }
             if(!"".equals(groupDetailRequest.getGroupCode())){
-                if(!groupDetailRequest.getGroupCode().equals(group.getGroupCode())){
+                if(!Objects.equals(groupDetailRequest.getGroupCode(), group.getGroupCode())){
                     throw new BizException("不存在符合条件的小组");
                 }
             }
             if(!"".equals(groupDetailRequest.getGroupId())){
-                if(!groupDetailRequest.getGroupId().equals(group.getGroupId())){
+                if(!Objects.equals(groupDetailRequest.getGroupId(), group.getGroupId())){
                     throw new BizException("不存在符合条件的小组");
                 }
             }
