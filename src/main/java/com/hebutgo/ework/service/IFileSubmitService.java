@@ -2,6 +2,9 @@ package com.hebutgo.ework.service;
 
 import com.hebutgo.ework.entity.FileSubmit;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.hebutgo.ework.entity.request.FileUploadRequest;
+import com.hebutgo.ework.entity.vo.FileUploadVo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -12,5 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2020-08-26
  */
 public interface IFileSubmitService extends IService<FileSubmit> {
-
+    public FileUploadVo upload(FileUploadRequest fileUploadRequest);
 }

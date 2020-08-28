@@ -48,6 +48,7 @@ public class UserController {
             logger.error("用户注册失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户注册成功");
         return ApiResponse.success(registerVo);
     }
 
@@ -67,6 +68,7 @@ public class UserController {
             logger.error("登陆失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户登陆成功");
         return ApiResponse.success(loginVo);
     }
 
@@ -86,6 +88,7 @@ public class UserController {
             logger.error("修改账户信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户修改成功");
         return ApiResponse.success(changeDetailVo);
     }
 
@@ -99,12 +102,13 @@ public class UserController {
         try {
             logoutVo = iUserService.quit(logoutRequest);
         } catch (BizException e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("用户安全退出失败", e);
             return ApiResponse.error(e.getErrMessage());
         } catch (Exception e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("用户安全退出失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户安全退出成功");
         return ApiResponse.success(logoutVo);
     }
 
@@ -118,12 +122,13 @@ public class UserController {
         try {
             logoutVo = iUserService.logout(logoutRequest);
         } catch (BizException e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("用户注销账号失败", e);
             return ApiResponse.error(e.getErrMessage());
         } catch (Exception e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("用户注销账号失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户注销账号成功");
         return ApiResponse.success(logoutVo);
     }
 
@@ -143,6 +148,7 @@ public class UserController {
             logger.error("用户加入小组失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户加入小组成功");
         return ApiResponse.success(joinGroupVo);
     }
 
@@ -162,6 +168,7 @@ public class UserController {
             logger.error("用户退出小组失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户退出小组成功");
         return ApiResponse.success(joinGroupVo);
     }
 
@@ -181,6 +188,7 @@ public class UserController {
             logger.error("修改账户信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("用户修改账户信息成功");
         return ApiResponse.success(userDetailVo);
     }
 

@@ -48,6 +48,7 @@ public class GroupAdminController {
             logger.error("管理员加入小组失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员加入小组成功");
         return ApiResponse.success(joinGroupVo);
     }
 
@@ -67,6 +68,7 @@ public class GroupAdminController {
             logger.error("管理员退出小组失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员退出小组失败");
         return ApiResponse.success(joinGroupVo);
     }
 }

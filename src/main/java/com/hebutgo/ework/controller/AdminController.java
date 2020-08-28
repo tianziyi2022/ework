@@ -35,7 +35,7 @@ public class AdminController {
     @CrossOrigin
     @ApiOperation(value = "管理员注册",tags = CommonConstant.ADMIN_ACCOUNT)
     @PostMapping("/register")
-    public ApiResponse register(
+    public ApiResponse<RegisterVo> register(
             @RequestBody AdminRegisterRequest adminRegisterRequest
     ){
         RegisterVo registerVo;
@@ -48,6 +48,7 @@ public class AdminController {
             logger.error("管理员注册失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员注册成功");
         return ApiResponse.success(registerVo);
     }
 
@@ -67,6 +68,7 @@ public class AdminController {
             logger.error("登陆失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员登陆成功");
         return ApiResponse.success(loginVo);
     }
 
@@ -86,6 +88,7 @@ public class AdminController {
             logger.error("修改账户信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员修改账户信息成功");
         return ApiResponse.success(changeDetailVo);
     }
 
@@ -99,12 +102,13 @@ public class AdminController {
         try {
             logoutVo = iAdminService.quit(logoutRequest);
         } catch (BizException e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("管理员安全退出失败", e);
             return ApiResponse.error(e.getErrMessage());
         } catch (Exception e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("管理员安全退出失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员安全退出成功");
         return ApiResponse.success(logoutVo);
     }
 
@@ -118,12 +122,13 @@ public class AdminController {
         try {
             logoutVo = iAdminService.logout(logoutRequest);
         } catch (BizException e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("管理员注销账号失败", e);
             return ApiResponse.error(e.getErrMessage());
         } catch (Exception e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("管理员注销账号失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员注销账号成功");
         return ApiResponse.success(logoutVo);
     }
 
@@ -137,12 +142,13 @@ public class AdminController {
         try {
             adminDetailVo = iAdminService.detail(accountDetailRequest);
         } catch (BizException e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("管理员查看账户信息失败", e);
             return ApiResponse.error(e.getErrMessage());
         } catch (Exception e) {
-            logger.error("修改账户信息失败", e);
+            logger.error("管理员查看账户信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("管理员查看账户信息成功");
         return ApiResponse.success(adminDetailVo);
     }
 }

@@ -14,4 +14,6 @@ public class CommonConstant {
     public static final String USER_GROUP = "用户对小组的操作";
     public static final String ADMIN_GROUP = "管理员对小组的操作";
     public static final String GROUP = "对小组的操作";
+
+    public static final String FILE_UPLOAD = "文件上传";
 }

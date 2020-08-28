@@ -2,6 +2,11 @@ server:
   port: 8081
 
 spring:
+  http:
+    multipart:
+      max-file-size: 50Mb
+      max-request-size: 50Mb
+
   datasource:
     username: root
     password: tzy20000712

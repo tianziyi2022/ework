@@ -36,6 +36,9 @@ public class FileDemand extends Model<FileDemand> {
     @ApiModelProperty(value = "文件链接")
     private String url;
 
+    @ApiModelProperty(value = "上传管理员id")
+    private Integer adminId;
+
     @ApiModelProperty(value = "是否被删除（0未删除/有效，1已删除/无效）")
     private Integer isDelete;
 

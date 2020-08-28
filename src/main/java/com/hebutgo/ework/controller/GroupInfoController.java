@@ -51,6 +51,7 @@ public class GroupInfoController {
             logger.error("新建小组失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("新建小组成功");
         return ApiResponse.success(createGroupVo);
     }
 
@@ -70,6 +71,7 @@ public class GroupInfoController {
             logger.error("修改小组信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("修改小组信息成功");
         return ApiResponse.success(createGroupVo);
     }
 
@@ -89,6 +91,7 @@ public class GroupInfoController {
             logger.error("获取小组信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
+        logger.info("获取小组信息成功");
         return ApiResponse.success(groupDetailVo);
     }
 }
