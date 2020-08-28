@@ -15,7 +15,7 @@ import lombok.Data;
 @ApiModel(value = "新建组/修改小组信息")
 public class CreateGroupVo {
 
-    @ApiModelProperty(value = "自增id")
+    @ApiModelProperty(value = "小组自增id")
     private Integer id;
 
     @ApiModelProperty(value = "小组识别码（注册时系统生成）")

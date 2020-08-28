@@ -1,38 +1,26 @@
-package com.hebutgo.ework.entity;
+package com.hebutgo.ework.entity.vo;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import com.hebutgo.ework.entity.WorkDemand;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+
+import java.sql.Timestamp;
 
 /**
  * <p>
- * 作业需求（发布作业内容）表
+ *  管理员查看作业要求返回类
  * </p>
  *
  * @author tianziyi
- * @since 2020-08-26
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-@Accessors(chain = true)
-@ApiModel(value="WorkDemand对象", description="作业需求（发布作业内容）表")
-public class WorkDemand extends Model<WorkDemand> {
-
-    private static final long serialVersionUID = 1L;
+@ApiModel(value = "管理员查看作业要求")
+public class DemandDetailVo {
 
     @ApiModelProperty(value = "自增id")
-    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     @ApiModelProperty(value = "作业号（新建时生成）")
@@ -47,12 +35,8 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "作业内容描述")
     private String description;
 
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "附件链接")
     private Integer appendixUrl;
-
-    @ApiModelProperty(value = "备注")
-    private String note;
 
     @ApiModelProperty(value = "作业状态（110已发布，120修改后发布，0无效，10已保存未发布，20已修改未发布）")
     private Integer status;
@@ -72,16 +56,18 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "发放小组id")
     private Integer groupId;
 
-    @ApiModelProperty(value = "创建时间")
-    private Timestamp createTime;
-
-    @ApiModelProperty(value = "修改时间")
-    private Timestamp updateTime;
-
-
-    @Override
-    protected Serializable pkVal() {
-        return this.id;
+    public DemandDetailVo(WorkDemand workDemand){
+        this.id = workDemand.getId();
+        this.demandId = workDemand.getDemandId();
+        this.announcerId = workDemand.getAnnouncerId();
+        this.title = workDemand.getTitle();
+        this.description = workDemand.getDescription();
+        this.appendixUrl = workDemand.getAppendixUrl();
+        this.status = workDemand.getStatus();
+        this.startTime = workDemand.getStartTime();
+        this.endTime = workDemand.getEndTime();
+        this.studentCount = workDemand.getStudentCount();
+        this.submitCount = workDemand.getSubmitCount();
+        this.groupId = workDemand.getGroupId();
     }
-
 }

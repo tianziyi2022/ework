@@ -16,4 +16,6 @@ public class CommonConstant {
     public static final String GROUP = "对小组的操作";
 
     public static final String FILE_UPLOAD = "文件上传";
+
+    public static final String WORK_DEMAND = "作业需求";
 }
