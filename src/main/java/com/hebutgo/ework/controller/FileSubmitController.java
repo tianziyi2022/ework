@@ -34,7 +34,7 @@ public class FileSubmitController {
     IFileSubmitService iFileSubmitService;
 
     @CrossOrigin
-    @ApiOperation(value = "文件上传（作业要求）",tags = CommonConstant.FILE_UPLOAD)
+    @ApiOperation(value = "文件上传（作业内容）",tags = CommonConstant.FILE_UPLOAD)
     @PostMapping("/upload")
     public ApiResponse<FileUploadVo> upload(
             @RequestBody FileUploadRequest fileUploadRequest

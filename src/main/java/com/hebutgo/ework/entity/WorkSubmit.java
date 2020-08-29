@@ -82,7 +82,7 @@ public class WorkSubmit extends Model<WorkSubmit> {
     @ApiModelProperty(value = "教师评语")
     private String comment;
 
-    @ApiModelProperty(value = "状态（0无效，100已发布未完成，110已提交，120已修改，200已批改，300作业要求已撤回）")
+    @ApiModelProperty(value = "状态（0无效，100已发布未完成，110已完成保存未提交，120已撤回，210已提交，220已修改，230已批改，300作业要求已撤回）")
     private Integer status;
 
     @ApiModelProperty(value = "创建时间")
