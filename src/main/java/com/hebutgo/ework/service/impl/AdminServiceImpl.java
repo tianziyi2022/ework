@@ -277,14 +277,16 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         List<GroupInfo> createGroupInfoList = groupInfoMapper.selectList(queryWrapper);
         List<GroupDetailVo> createGroupDetailVoList = new ArrayList<>();
         for(GroupInfo group:createGroupInfoList){
-            GroupDetailVo groupDetailVo = new GroupDetailVo();
-            groupDetailVo.setId(group.getId());
-            groupDetailVo.setCreateAdminName(admin.getUserName());
-            groupDetailVo.setDescriptions(group.getDescriptions());
-            groupDetailVo.setGroupCode(group.getGroupCode());
-            groupDetailVo.setGroupName(group.getGroupName());
-            groupDetailVo.setStatus(group.getStatus());
-            createGroupDetailVoList.add(groupDetailVo);
+            if(group.getStatus()!=100) {
+                GroupDetailVo groupDetailVo = new GroupDetailVo();
+                groupDetailVo.setId(group.getId());
+                groupDetailVo.setCreateAdminName(admin.getUserName());
+                groupDetailVo.setDescriptions(group.getDescriptions());
+                groupDetailVo.setGroupCode(group.getGroupCode());
+                groupDetailVo.setGroupName(group.getGroupName());
+                groupDetailVo.setStatus(group.getStatus());
+                createGroupDetailVoList.add(groupDetailVo);
+            }
         }
         adminDetailVo.setCreateGroupCount(createGroupDetailVoList.size());
         adminDetailVo.setCreateGroupDetailVoList(createGroupDetailVoList);
