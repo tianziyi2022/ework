@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.*;
 import com.hebutgo.ework.entity.request.CompleteWorkRequest;
+import com.hebutgo.ework.entity.request.CorrectWorkRequest;
 import com.hebutgo.ework.entity.request.ReturnWorkRequest;
 import com.hebutgo.ework.entity.request.SubmitWorkRequest;
 import com.hebutgo.ework.entity.vo.SubmitWorkVo;
@@ -32,6 +33,9 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
 
     @Resource
     AdminMapper adminMapper;
+
+    @Resource
+    GroupInfoMapper groupInfoMapper;
 
     @Resource
     GroupAdminMapper groupAdminMapper;
@@ -252,19 +256,17 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             throw new BizException("作业信息不存在");
         }
         User user = userMapper.selectById(workSubmit.getId());
-        GroupAdmin groupAdmin0 = new GroupAdmin();
-        groupAdmin0.setGroupId(user.getGroupId());
-        groupAdmin0.setAdminId(returnWorkRequest.getId());
-        groupAdmin0.setIsDelete(0);
-        QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
-        groupAdminQueryWrapper.setEntity(groupAdmin0);
-        GroupAdmin groupAdmin = groupAdminMapper.selectOne(groupAdminQueryWrapper);
-        if(Objects.isNull(groupAdmin)){
-            throw new BizException("该管理员不在作业完成人小组内，无法撤回");
-        }
-
-        if(!Objects.equals(workSubmit.getAnnouncerId(), returnWorkRequest.getId())){
-            throw new BizException("作业完成人不匹配");
+        GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+        if(!Objects.equals(group.getCreateAdmin(), returnWorkRequest.getId())){
+            GroupAdmin groupAdmin = new GroupAdmin();
+            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
+            groupAdmin.setIsDelete(0);
+            groupAdmin.setAdminId(returnWorkRequest.getId());
+            groupAdmin.setGroupId(user.getGroupId());
+            groupAdminQueryWrapper.setEntity(groupAdmin);
+            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+                throw new BizException("该管理员不在作业完成人小组内，无法撤回");
+            }
         }
         WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
         if(!Objects.isNull(workDemand.getStartTime())){
@@ -290,6 +292,136 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             default:
                 throw new BizException("作业状态不允许撤回");
         }
+        workSubmit.setCorrectId(null);
+        workSubmit.setScore(null);
+        workSubmit.setComment(null);
+        workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        workSubmitMapper.updateById(workSubmit);
+        SubmitWorkVo submitWorkVo = new SubmitWorkVo();
+        submitWorkVo.setId(workSubmit.getId());
+        submitWorkVo.setTitle(workDemand.getTitle());
+        submitWorkVo.setUserName(user.getUserName());
+        return submitWorkVo;
+    }
+
+    @Override
+    public SubmitWorkVo correct(CorrectWorkRequest correctWorkRequest) {
+        if(correctWorkRequest.getType()!=10){
+            throw new BizException("用户类型错误");
+        }
+        Admin admin = adminMapper.selectById(correctWorkRequest.getId());
+        if(Objects.isNull(admin)){
+            throw new BizException("用户不存在");
+        }
+        if(admin.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(admin.getToken(), correctWorkRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        WorkSubmit workSubmit = workSubmitMapper.selectById(correctWorkRequest.getSubmitId());
+        if(Objects.isNull(workSubmit)||workSubmit.getStatus()==0){
+            throw new BizException("作业信息不存在");
+        }
+        User user = userMapper.selectById(workSubmit.getStudentId());
+        GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+        if(!Objects.equals(group.getCreateAdmin(), correctWorkRequest.getId())){
+            GroupAdmin groupAdmin = new GroupAdmin();
+            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
+            groupAdmin.setIsDelete(0);
+            groupAdmin.setAdminId(correctWorkRequest.getId());
+            groupAdmin.setGroupId(user.getGroupId());
+            groupAdminQueryWrapper.setEntity(groupAdmin);
+            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+                throw new BizException("该管理员不在作业完成人小组内，无法撤回");
+            }
+        }
+        WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
+        if(!Objects.isNull(workDemand.getStartTime())){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+                throw new BizException("作业未开始提交，不能批改");
+            }
+        }
+        if(!Objects.isNull(workDemand.getEndTime())){
+            if(workDemand.getEndTime().after(new Timestamp(System.currentTimeMillis()))){
+                throw new BizException("作业未结束提交，不能批改");
+            }
+        }
+        switch(workSubmit.getStatus()){
+            case 210:
+            case 220:
+                workSubmit.setStatus(230);
+                break;
+            case 100:
+            case 110:
+            case 120:
+                throw new BizException("作业未提交，无法批改");
+            case 230:
+                throw new BizException("作业已批改，不能重复批改，请退回或重判");
+            default:
+                throw new BizException("作业状态不允许批改");
+        }
+        workSubmit.setCorrectId(correctWorkRequest.getId());
+        workSubmit.setComment(correctWorkRequest.getComment());
+        workSubmit.setScore(correctWorkRequest.getScore());
+        workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+        workSubmitMapper.updateById(workSubmit);
+        SubmitWorkVo submitWorkVo = new SubmitWorkVo();
+        submitWorkVo.setId(workSubmit.getId());
+        submitWorkVo.setTitle(workDemand.getTitle());
+        submitWorkVo.setUserName(user.getUserName());
+        return submitWorkVo;
+    }
+
+    @Override
+    public SubmitWorkVo recorrect(CorrectWorkRequest correctWorkRequest) {
+        if(correctWorkRequest.getType()!=10){
+            throw new BizException("用户类型错误");
+        }
+        Admin admin = adminMapper.selectById(correctWorkRequest.getId());
+        if(Objects.isNull(admin)){
+            throw new BizException("用户不存在");
+        }
+        if(admin.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(admin.getToken(), correctWorkRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        WorkSubmit workSubmit = workSubmitMapper.selectById(correctWorkRequest.getSubmitId());
+        if(Objects.isNull(workSubmit)||workSubmit.getStatus()==0){
+            throw new BizException("作业信息不存在");
+        }
+        User user = userMapper.selectById(workSubmit.getId());
+        GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+        if(!Objects.equals(group.getCreateAdmin(), correctWorkRequest.getId())){
+            GroupAdmin groupAdmin = new GroupAdmin();
+            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
+            groupAdmin.setIsDelete(0);
+            groupAdmin.setAdminId(correctWorkRequest.getId());
+            groupAdmin.setGroupId(user.getGroupId());
+            groupAdminQueryWrapper.setEntity(groupAdmin);
+            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+                throw new BizException("该管理员不在作业完成人小组内，无法撤回");
+            }
+        }
+        WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
+        if(!Objects.isNull(workDemand.getStartTime())){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+                throw new BizException("作业未开始提交，不能批改");
+            }
+        }
+        if(!Objects.isNull(workDemand.getEndTime())){
+            if(workDemand.getEndTime().after(new Timestamp(System.currentTimeMillis()))){
+                throw new BizException("作业未结束提交，不能批改");
+            }
+        }
+        if(workSubmit.getStatus()!=230){
+            throw new BizException("作业未批改，不能重判");
+        }
+        workSubmit.setCorrectId(correctWorkRequest.getId());
+        workSubmit.setComment(correctWorkRequest.getComment());
+        workSubmit.setScore(correctWorkRequest.getScore());
         workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         workSubmitMapper.updateById(workSubmit);
         SubmitWorkVo submitWorkVo = new SubmitWorkVo();

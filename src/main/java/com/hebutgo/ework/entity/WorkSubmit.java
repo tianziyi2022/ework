@@ -73,12 +73,15 @@ public class WorkSubmit extends Model<WorkSubmit> {
     @ApiModelProperty(value = "备注")
     private String note;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "批改教师id")
     private Integer correctId;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "评价分数（满分为100分）")
     private Integer score;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "教师评语")
     private String comment;
 

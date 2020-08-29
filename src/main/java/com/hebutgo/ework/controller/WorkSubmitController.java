@@ -6,10 +6,7 @@ import com.hebutgo.ework.common.CommonConstant;
 import com.hebutgo.ework.common.ErrorCodeEnum;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.WorkSubmit;
-import com.hebutgo.ework.entity.request.CompleteWorkRequest;
-import com.hebutgo.ework.entity.request.CreateDemandRequest;
-import com.hebutgo.ework.entity.request.ReturnWorkRequest;
-import com.hebutgo.ework.entity.request.SubmitWorkRequest;
+import com.hebutgo.ework.entity.request.*;
 import com.hebutgo.ework.entity.vo.CreateDemandVo;
 import com.hebutgo.ework.entity.vo.SubmitWorkVo;
 import com.hebutgo.ework.service.IWorkSubmitService;
@@ -113,6 +110,46 @@ public class WorkSubmitController {
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
         logger.info("管理员退回用户提交的作业成功");
+        return ApiResponse.success(submitWorkVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员批改用户提交的作业",tags = CommonConstant.WORK_CORRECT)
+    @PostMapping("/correct")
+    public ApiResponse<SubmitWorkVo> correct(
+            @RequestBody CorrectWorkRequest correctWorkRequest
+            ){
+        SubmitWorkVo submitWorkVo;
+        try{
+            submitWorkVo = iWorkSubmitService.correct(correctWorkRequest);
+        }catch (BizException e) {
+            logger.error("管理员批改用户提交的作业失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("管理员批改用户提交的作业失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("管理员批改用户提交的作业成功");
+        return ApiResponse.success(submitWorkVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员重判用户提交的作业",tags = CommonConstant.WORK_CORRECT)
+    @PostMapping("/recorrect")
+    public ApiResponse<SubmitWorkVo> recorrect(
+            @RequestBody CorrectWorkRequest correctWorkRequest
+    ){
+        SubmitWorkVo submitWorkVo;
+        try{
+            submitWorkVo = iWorkSubmitService.recorrect(correctWorkRequest);
+        }catch (BizException e) {
+            logger.error("管理员重判用户提交的作业失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("管理员重判用户提交的作业失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("管理员重判用户提交的作业成功");
         return ApiResponse.success(submitWorkVo);
     }
 }
