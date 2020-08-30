@@ -3,11 +3,9 @@ package com.hebutgo.ework.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.*;
-import com.hebutgo.ework.entity.request.CompleteWorkRequest;
-import com.hebutgo.ework.entity.request.CorrectWorkRequest;
-import com.hebutgo.ework.entity.request.ReturnWorkRequest;
-import com.hebutgo.ework.entity.request.SubmitWorkRequest;
+import com.hebutgo.ework.entity.request.*;
 import com.hebutgo.ework.entity.vo.SubmitWorkVo;
+import com.hebutgo.ework.entity.vo.WorkDetailVo;
 import com.hebutgo.ework.mapper.*;
 import com.hebutgo.ework.service.IWorkSubmitService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -173,6 +173,8 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         }
         workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         workSubmitMapper.updateById(workSubmit);
+        workDemand.setSubmitCount(workDemand.getSubmitCount()+1);
+        workDemandMapper.updateById(workDemand);
         SubmitWorkVo submitWorkVo = new SubmitWorkVo();
         submitWorkVo.setId(workSubmit.getId());
         submitWorkVo.setTitle(workDemand.getTitle());
@@ -229,6 +231,8 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         }
         workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         workSubmitMapper.updateById(workSubmit);
+        workDemand.setSubmitCount(workDemand.getSubmitCount()-1);
+        workDemandMapper.updateById(workDemand);
         SubmitWorkVo submitWorkVo = new SubmitWorkVo();
         submitWorkVo.setId(workSubmit.getId());
         submitWorkVo.setTitle(workDemand.getTitle());
@@ -297,6 +301,8 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         workSubmit.setComment(null);
         workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         workSubmitMapper.updateById(workSubmit);
+        workDemand.setSubmitCount(workDemand.getSubmitCount()-1);
+        workDemandMapper.updateById(workDemand);
         SubmitWorkVo submitWorkVo = new SubmitWorkVo();
         submitWorkVo.setId(workSubmit.getId());
         submitWorkVo.setTitle(workDemand.getTitle());
@@ -429,5 +435,179 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         submitWorkVo.setTitle(workDemand.getTitle());
         submitWorkVo.setUserName(user.getUserName());
         return submitWorkVo;
+    }
+
+    @Override
+    public WorkDetailVo detail(WorkDetailRequest workDetailRequest) {
+        WorkSubmit workSubmit = workSubmitMapper.selectById(workDetailRequest.getSubmitId());
+        if(Objects.isNull(workSubmit)||workSubmit.getStatus()==0){
+            throw new BizException("作业信息不存在");
+        }
+        if(workDetailRequest.getType()==10){
+            Admin admin = adminMapper.selectById(workDetailRequest.getId());
+            if(Objects.isNull(admin)){
+                throw new BizException("用户不存在");
+            }
+            if(admin.getStatus()!=10) {
+                throw new BizException("用户状态异常");
+            }
+            if(!Objects.equals(admin.getToken(), workDetailRequest.getToken())) {
+                throw new BizException("未登陆或登陆超时");
+            }
+            if(workSubmit.getStatus()==100||workSubmit.getStatus()==110||workSubmit.getStatus()==120){
+                throw new BizException("作业未提交，不能查看");
+            }
+            if(workSubmit.getStatus()!=210&&workSubmit.getStatus()!=220&&workSubmit.getStatus()!=230){
+                throw new BizException("作业状态不允许查看");
+            }
+            User user = userMapper.selectById(workSubmit.getId());
+            GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+            if(!Objects.equals(group.getCreateAdmin(), workDetailRequest.getId())){
+                GroupAdmin groupAdmin = new GroupAdmin();
+                QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
+                groupAdmin.setIsDelete(0);
+                groupAdmin.setAdminId(workDetailRequest.getId());
+                groupAdmin.setGroupId(user.getGroupId());
+                groupAdminQueryWrapper.setEntity(groupAdmin);
+                if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+                    throw new BizException("该管理员不在作业完成人小组内，无法查看");
+                }
+            }
+        }else if(workDetailRequest.getType()==20){
+            User user = userMapper.selectById(workDetailRequest.getId());
+            if(Objects.isNull(user)){
+                throw new BizException("用户不存在");
+            }
+            if(user.getStatus()!=10) {
+                throw new BizException("用户状态异常");
+            }
+            if(!Objects.equals(user.getToken(), workDetailRequest.getToken())){
+                throw new BizException("未登陆或登陆超时");
+            }
+            if(!Objects.equals(workSubmit.getStudentId(), workDetailRequest.getId())){
+                throw new BizException("作业完成人不匹配");
+            }
+            if(workSubmit.getStatus()==300){
+                throw new BizException("作业已被管理员撤回，不能查看");
+            }
+        }else{
+            throw new BizException("用户类型错误");
+        }
+        WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
+        User user = userMapper.selectById(workSubmit.getStudentId());
+        Admin announcer = adminMapper.selectById(workDemand.getAnnouncerId());
+        if(Objects.isNull(announcer)||Objects.isNull(user)){
+            throw new BizException("查询错误");
+        }
+        WorkDetailVo workDetailVo;
+        if(Objects.isNull(workSubmit.getCorrectId())){
+            workDetailVo = new WorkDetailVo(workSubmit,workDemand,user,announcer.getUserName());
+        }else{
+            Admin correct = adminMapper.selectById(workSubmit.getCorrectId());
+            workDetailVo = new WorkDetailVo(workSubmit,workDemand,user,announcer.getUserName(),correct.getUserName());
+        }
+        return workDetailVo;
+    }
+
+    @Override
+    public List<WorkDetailVo> detailList(WorkDetailListRequest workDetailListRequest) {
+        List<WorkDetailVo> workDetailVoList = new ArrayList<>();
+        if(workDetailListRequest.getType()==10) {
+            Admin admin = adminMapper.selectById(workDetailListRequest.getId());
+            if (Objects.isNull(admin)) {
+                throw new BizException("用户不存在");
+            }
+            if (admin.getStatus() != 10) {
+                throw new BizException("用户状态异常");
+            }
+            if (!Objects.equals(admin.getToken(), workDetailListRequest.getToken())) {
+                throw new BizException("未登陆或登陆超时");
+            }
+            List<Integer> groupIdList = new ArrayList<>();
+            QueryWrapper<GroupInfo> groupInfoQueryWrapper = new QueryWrapper<>();
+            GroupInfo groupInfo0 = new GroupInfo();
+            groupInfo0.setCreateAdmin(workDetailListRequest.getId());
+            groupInfoQueryWrapper.setEntity(groupInfo0);
+            List<GroupInfo> groupInfoList = groupInfoMapper.selectList(groupInfoQueryWrapper);
+            for(GroupInfo groupInfo1 : groupInfoList){
+                groupIdList.add(groupInfo1.getId());
+            }
+            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
+            GroupAdmin groupAdmin0 = new GroupAdmin();
+            groupAdmin0.setIsDelete(0);
+            groupAdmin0.setAdminId(workDetailListRequest.getId());
+            groupAdminQueryWrapper.setEntity(groupAdmin0);
+            List<GroupAdmin> groupAdminList = groupAdminMapper.selectList(groupAdminQueryWrapper);
+            for(GroupAdmin groupAdmin1 : groupAdminList){
+                groupIdList.add(groupAdmin1.getGroupId());
+            }
+            for (Integer integer : groupIdList) {
+                QueryWrapper<WorkDemand> workDemandQueryWrapper = new QueryWrapper<>();
+                WorkDemand workDemand0 = new WorkDemand();
+                workDemand0.setGroupId(integer);
+                workDemandQueryWrapper.setEntity(workDemand0);
+                List<WorkDemand> workDemandList1 = workDemandMapper.selectList(workDemandQueryWrapper);
+                for (WorkDemand workDemand1 : workDemandList1) {
+                    if (workDemand1.getStatus() != 300 && workDemand1.getStatus() != 0) {
+                        QueryWrapper<WorkSubmit> workSubmitQueryWrapper = new QueryWrapper<>();
+                        WorkSubmit workSubmit0 = new WorkSubmit();
+                        workSubmit0.setDemandId(workDemand1.getId());
+                        workSubmitQueryWrapper.setEntity(workSubmit0);
+                        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(workSubmitQueryWrapper);
+                        for (WorkSubmit workSubmit1 : workSubmitList) {
+                            if (workSubmit1.getStatus() == 210 || workSubmit1.getStatus() == 220 || workSubmit1.getStatus() == 230) {
+                                User user = userMapper.selectById(workSubmit1.getStudentId());
+                                Admin announcer = adminMapper.selectById(workDemand1.getAnnouncerId());
+                                if (Objects.isNull(announcer) || Objects.isNull(user)) {
+                                    throw new BizException("查询错误");
+                                }
+                                WorkDetailVo workDetailVo;
+                                if (Objects.isNull(workSubmit1.getCorrectId())) {
+                                    workDetailVo = new WorkDetailVo(workSubmit1, workDemand1, user, announcer.getUserName());
+                                } else {
+                                    Admin correct = adminMapper.selectById(workSubmit1.getCorrectId());
+                                    workDetailVo = new WorkDetailVo(workSubmit1, workDemand1, user, announcer.getUserName(), correct.getUserName());
+                                }
+                                workDetailVoList.add(workDetailVo);
+                            }
+                        }
+                    }
+                }
+            }
+        }else if(workDetailListRequest.getType()==20){
+            User user = userMapper.selectById(workDetailListRequest.getId());
+            if(Objects.isNull(user)){
+                throw new BizException("用户不存在");
+            }
+            if(user.getStatus()!=10) {
+                throw new BizException("用户状态异常");
+            }
+            if(!Objects.equals(user.getToken(), workDetailListRequest.getToken())){
+                throw new BizException("未登陆或登陆超时");
+            }
+            QueryWrapper<WorkSubmit> workSubmitQueryWrapper = new QueryWrapper<>();
+            WorkSubmit workSubmit0 = new WorkSubmit();
+            workSubmit0.setStudentId(workDetailListRequest.getId());
+            workSubmitQueryWrapper.setEntity(workSubmit0);
+            List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(workSubmitQueryWrapper);
+            for(WorkSubmit workSubmit1 : workSubmitList){
+                WorkDemand workDemand = workDemandMapper.selectById(workSubmit1.getDemandId());
+                Admin announcer = adminMapper.selectById(workDemand.getAnnouncerId());
+                if (Objects.isNull(announcer) || Objects.isNull(user)) {
+                    throw new BizException("查询错误");
+                }
+                WorkDetailVo workDetailVo;
+                if (Objects.isNull(workSubmit1.getCorrectId())) {
+                    workDetailVo = new WorkDetailVo(workSubmit1, workDemand, user, announcer.getUserName());
+                } else {
+                    Admin correct = adminMapper.selectById(workSubmit1.getCorrectId());
+                    workDetailVo = new WorkDetailVo(workSubmit1, workDemand, user, announcer.getUserName(), correct.getUserName());
+                }
+                workDetailVoList.add(workDetailVo);
+            }
+        }else{
+            throw new BizException("用户类型错误");
+        }
+        return workDetailVoList;
     }
 }

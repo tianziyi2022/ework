@@ -9,12 +9,15 @@ import com.hebutgo.ework.entity.WorkSubmit;
 import com.hebutgo.ework.entity.request.*;
 import com.hebutgo.ework.entity.vo.CreateDemandVo;
 import com.hebutgo.ework.entity.vo.SubmitWorkVo;
+import com.hebutgo.ework.entity.vo.WorkDetailVo;
 import com.hebutgo.ework.service.IWorkSubmitService;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -152,4 +155,45 @@ public class WorkSubmitController {
         logger.info("管理员重判用户提交的作业成功");
         return ApiResponse.success(submitWorkVo);
     }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员/用户查看作业详情",tags = CommonConstant.WORK_CORRECT)
+    @PostMapping("/detail")
+    public ApiResponse<WorkDetailVo> detail(
+            @RequestBody WorkDetailRequest workDetailRequest
+    ){
+        WorkDetailVo workDetailVo;
+        try{
+            workDetailVo = iWorkSubmitService.detail(workDetailRequest);
+        }catch (BizException e) {
+            logger.error("管理员/用户查看作业详情失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("管理员/用户查看作业详情失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("管理员/用户查看作业详情成功");
+        return ApiResponse.success(workDetailVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员/用户查看作业详情列表",tags = CommonConstant.WORK_CORRECT)
+    @PostMapping("/detailList")
+    public ApiResponse<List<WorkDetailVo>> detailList(
+            @RequestBody WorkDetailListRequest workDetailListRequest
+    ) {
+        List<WorkDetailVo> workDetailVoList;
+        try {
+            workDetailVoList = iWorkSubmitService.detailList(workDetailListRequest);
+        } catch (BizException e) {
+            logger.error("管理员/用户查看作业详情列表失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("管理员/用户查看作业详情列表失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("管理员/用户查看作业详情列表成功");
+        return ApiResponse.success(workDetailVoList);
+    }
+
 }
