@@ -16,4 +16,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface IFileDemandService extends IService<FileDemand> {
     public FileUploadVo upload(FileUploadRequest fileUploadRequest);
+    public FileUploadVo upload(FileUploadRequest fileUploadRequest,MultipartFile multipartFile);
 }

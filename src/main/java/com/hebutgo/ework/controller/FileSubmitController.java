@@ -37,11 +37,12 @@ public class FileSubmitController {
     @ApiOperation(value = "文件上传（作业内容）",tags = CommonConstant.FILE_UPLOAD)
     @PostMapping("/upload")
     public ApiResponse<FileUploadVo> upload(
-            @RequestBody FileUploadRequest fileUploadRequest
+            @RequestBody FileUploadRequest fileUploadRequest,
+            @RequestParam("file") MultipartFile multipartfile
     ){
         FileUploadVo fileUploadVo;
         try{
-            fileUploadVo = iFileSubmitService.upload(fileUploadRequest);
+            fileUploadVo = iFileSubmitService.upload(fileUploadRequest,multipartfile);
         }catch (BizException e) {
             logger.error("文件上传（作业内容）失败", e);
             return ApiResponse.error(e.getErrMessage());

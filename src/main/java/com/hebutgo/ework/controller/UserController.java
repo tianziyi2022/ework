@@ -88,7 +88,7 @@ public class UserController {
             logger.error("修改账户信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
-        logger.info("用户修改成功");
+        logger.info("用户修改账户信息成功");
         return ApiResponse.success(changeDetailVo);
     }
 
@@ -188,7 +188,7 @@ public class UserController {
             logger.error("修改账户信息失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
-        logger.info("用户修改账户信息成功");
+        logger.info("用户查看账户信息成功");
         return ApiResponse.success(userDetailVo);
     }
 

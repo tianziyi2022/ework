@@ -76,4 +76,47 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
         fileUploadVo.setTopic("上传成功");
         return fileUploadVo;
     }
+
+    @Override
+    public FileUploadVo upload(FileUploadRequest fileUploadRequest, MultipartFile multipartFile) {
+        fileUploadRequest.setFile(multipartFile);
+        if(fileUploadRequest.getType()!=10){
+            throw new BizException("用户类型错误");
+        }
+        Admin admin = adminMapper.selectById(fileUploadRequest.getId());
+        if(Objects.isNull(admin)){
+            throw new BizException("用户不存在");
+        }
+        if(admin.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(admin.getToken(), fileUploadRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        MultipartFile file = fileUploadRequest.getFile();
+        if(Objects.isNull(file)||file.isEmpty()){
+            throw new BizException("上传失败，未选择文件");
+        }
+        String fileName = file.getOriginalFilename() + "-" + admin.getUserName() + "-" + (System.currentTimeMillis()%100000000);
+        String path = "/files/work/demand/";
+        File dest = new File(path + fileName);
+        try {
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new BizException("上传失败");
+        }
+        FileDemand fileDemand = new FileDemand();
+        fileDemand.setFileName(fileName);
+        fileDemand.setUrl(path + fileName);
+        fileDemand.setAdminId(fileUploadRequest.getId());
+        fileDemandMapper.insert(fileDemand);
+        QueryWrapper<FileDemand> fileDemandQueryWrapper = new QueryWrapper<>();
+        fileDemandQueryWrapper.setEntity(fileDemand);
+        FileDemand fileDemand1 = fileDemandMapper.selectOne(fileDemandQueryWrapper);
+        FileUploadVo fileUploadVo = new FileUploadVo();
+        fileUploadVo.setId(fileDemand1.getId());
+        fileUploadVo.setUrl(fileDemand1.getUrl());
+        fileUploadVo.setTopic("上传成功");
+        return fileUploadVo;
+    }
 }
