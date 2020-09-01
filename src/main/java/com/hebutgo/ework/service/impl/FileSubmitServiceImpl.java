@@ -3,6 +3,7 @@ package com.hebutgo.ework.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
+import com.hebutgo.ework.common.utils.FileSubmitUtil;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.FileDemand;
 import com.hebutgo.ework.entity.FileSubmit;
@@ -37,7 +38,10 @@ public class FileSubmitServiceImpl extends ServiceImpl<FileSubmitMapper, FileSub
 
     @Resource
     UserMapper userMapper;
-    
+
+    @Resource
+    FileSubmitUtil fileSubmitUtil;
+
     @Override
     public FileUploadVo upload(FileUploadRequest fileUploadRequest) {
         if(fileUploadRequest.getType()!=20){
@@ -65,7 +69,7 @@ public class FileSubmitServiceImpl extends ServiceImpl<FileSubmitMapper, FileSub
         } catch (IOException e) {
             throw new BizException("上传失败");
         }
-        FileSubmit fileSubmit = new FileSubmit();
+        FileSubmit fileSubmit = FileSubmit.builder().build();
         fileSubmit.setFileName(fileName);
         fileSubmit.setUrl(path + fileName);
         fileSubmit.setUserId(fileUploadRequest.getId());
@@ -108,7 +112,7 @@ public class FileSubmitServiceImpl extends ServiceImpl<FileSubmitMapper, FileSub
         } catch (IOException e) {
             throw new BizException("上传失败");
         }
-        FileSubmit fileSubmit = new FileSubmit();
+        FileSubmit fileSubmit = FileSubmit.builder().build();
         fileSubmit.setFileName(fileName);
         fileSubmit.setUrl(path + fileName);
         fileSubmit.setUserId(fileUploadRequest.getId());
@@ -121,5 +125,10 @@ public class FileSubmitServiceImpl extends ServiceImpl<FileSubmitMapper, FileSub
         fileUploadVo.setUrl(fileSubmit1.getUrl());
         fileUploadVo.setTopic("上传成功");
         return fileUploadVo;
+    }
+
+    @Override
+    public FileUploadVo upload(MultipartFile multipartFile) {
+        return fileSubmitUtil.storeFileInDatabase(multipartFile,null);
     }
 }

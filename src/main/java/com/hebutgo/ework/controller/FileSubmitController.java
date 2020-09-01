@@ -54,4 +54,24 @@ public class FileSubmitController {
         logger.info("文件上传（作业内容）成功");
         return ApiResponse.success(fileUploadVo);
     }
+
+    @CrossOrigin
+    @ApiOperation(value = "文件上传（作业内容）",tags = CommonConstant.FILE_UPLOAD)
+    @PostMapping(value = "/uploadFile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<FileUploadVo> uploadFile(
+            @RequestParam("file") MultipartFile multipartfile
+    ){
+        FileUploadVo fileUploadVo;
+        try{
+            fileUploadVo = iFileSubmitService.upload(multipartfile);
+        }catch (BizException e) {
+            logger.error("文件上传（作业内容）失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("文件上传（作业内容）失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("文件上传（作业内容）成功");
+        return ApiResponse.success(fileUploadVo);
+    }
 }

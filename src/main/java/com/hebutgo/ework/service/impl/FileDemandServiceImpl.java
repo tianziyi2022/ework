@@ -2,6 +2,9 @@ package com.hebutgo.ework.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
+import com.hebutgo.ework.common.exception.FileException;
+import com.hebutgo.ework.common.utils.FileInfo;
+import com.hebutgo.ework.common.utils.FileUtil;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.FileDemand;
 import com.hebutgo.ework.entity.request.FileUploadRequest;
@@ -11,11 +14,13 @@ import com.hebutgo.ework.mapper.FileDemandMapper;
 import com.hebutgo.ework.service.IFileDemandService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
 /**
@@ -62,7 +67,7 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
         } catch (IOException e) {
             throw new BizException("上传失败");
         }
-        FileDemand fileDemand = new FileDemand();
+        FileDemand fileDemand = FileDemand.builder().build();
         fileDemand.setFileName(fileName);
         fileDemand.setUrl(path + fileName);
         fileDemand.setAdminId(fileUploadRequest.getId());
@@ -105,7 +110,7 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
         } catch (IOException e) {
             throw new BizException("上传失败");
         }
-        FileDemand fileDemand = new FileDemand();
+        FileDemand fileDemand = FileDemand.builder().build();
         fileDemand.setFileName(fileName);
         fileDemand.setUrl(path + fileName);
         fileDemand.setAdminId(fileUploadRequest.getId());
