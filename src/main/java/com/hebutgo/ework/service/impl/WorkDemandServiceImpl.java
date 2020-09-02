@@ -114,7 +114,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         }
         if(changeDemandRequest.getAppendixUrl()!=0){
             FileDemand fileDemand = fileDemandMapper.selectById(changeDemandRequest.getAppendixUrl());
-            if(!Objects.equals(fileDemand.getAdminId(), changeDemandRequest.getId())){
+            if(!Objects.isNull(fileDemand.getAdminId())&&!fileDemand.getAdminId().equals(changeDemandRequest.getId())){
                 throw new BizException("不能添加他人上传的附件");
             }
             workDemand.setAppendixUrl(changeDemandRequest.getAppendixUrl());
