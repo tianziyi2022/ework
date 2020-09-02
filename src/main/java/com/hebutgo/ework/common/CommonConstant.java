@@ -21,4 +21,5 @@ public class CommonConstant {
 
     public static final String WORK_SUBMIT = "用户对作业的操作";
     public static final String WORK_CORRECT = "管理员对作业的操作";
+    public static final String FILE_DOWNLOAD = "文件下载";
 }

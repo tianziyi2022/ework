@@ -133,4 +133,13 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
     public FileUploadVo upload(MultipartFile multipartFile) {
         return fileDemandUtil.storeFileInDatabase(multipartFile,null);
     }
+
+    @Override
+    public String getUrl(Integer id) {
+        FileDemand fileDemand = fileDemandMapper.selectById(id);
+        if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
+            throw new BizException("文件不存在");
+        }
+        return fileDemand.getUrl();
+    }
 }

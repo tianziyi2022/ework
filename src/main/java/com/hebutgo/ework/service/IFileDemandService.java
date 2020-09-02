@@ -18,4 +18,5 @@ public interface IFileDemandService extends IService<FileDemand> {
     public FileUploadVo upload(FileUploadRequest fileUploadRequest);
     public FileUploadVo upload(FileUploadRequest fileUploadRequest,MultipartFile multipartFile);
     public FileUploadVo upload(MultipartFile multipartFile);
+    public String getUrl(Integer id);
 }

@@ -74,4 +74,24 @@ public class FileSubmitController {
         logger.info("文件上传（作业内容）成功");
         return ApiResponse.success(fileUploadVo);
     }
+
+    @CrossOrigin
+    @ApiOperation(value = "获取文件url",tags = CommonConstant.FILE_DOWNLOAD)
+    @PostMapping(value = "/getUrl",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> getUrl(
+            @RequestParam("id") Integer id
+    ){
+        String string;
+        try{
+            string = iFileSubmitService.getUrl(id);
+        }catch (BizException e) {
+            logger.error("获取文件url失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("获取文件url失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("获取文件url成功");
+        return ApiResponse.success(string);
+    }
 }
