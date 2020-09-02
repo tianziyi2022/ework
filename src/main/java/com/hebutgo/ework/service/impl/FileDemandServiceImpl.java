@@ -140,6 +140,6 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
         if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
             throw new BizException("文件不存在");
         }
-        return fileDemand.getUrl();
+        return "E:/Files/Demand/"+fileDemand.getUrl();
     }
 }

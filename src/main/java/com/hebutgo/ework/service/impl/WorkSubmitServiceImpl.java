@@ -259,7 +259,7 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         if(Objects.isNull(workSubmit)||workSubmit.getStatus()==0){
             throw new BizException("作业信息不存在");
         }
-        User user = userMapper.selectById(workSubmit.getId());
+        User user = userMapper.selectById(workSubmit.getStudentId());
         GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
         if(!Objects.equals(group.getCreateAdmin(), returnWorkRequest.getId())){
             GroupAdmin groupAdmin = new GroupAdmin();
@@ -398,7 +398,7 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         if(Objects.isNull(workSubmit)||workSubmit.getStatus()==0){
             throw new BizException("作业信息不存在");
         }
-        User user = userMapper.selectById(workSubmit.getId());
+        User user = userMapper.selectById(workSubmit.getStudentId());
         GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
         if(!Objects.equals(group.getCreateAdmin(), correctWorkRequest.getId())){
             GroupAdmin groupAdmin = new GroupAdmin();
