@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
@@ -98,7 +99,8 @@ public class FileSubmitUtil {
         String originName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         // 文件名后缀，最后一个.后面的
         String ext = originName.substring(originName.lastIndexOf("."));
-        String folder = "user_" + new Date(System.currentTimeMillis());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String folder = "user_" + sdf.format(new Date()).substring(4, 8);
         // 文件名拼接
         String fileName = originName.substring(0,originName.lastIndexOf(".")) + "-" + System.currentTimeMillis() + ext;
         folder = clearFilePath(folder);

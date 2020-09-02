@@ -208,6 +208,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             workDemand.setEndTime(announceDemandRequest.getEndTime());
         }
         workDemand.setStatus(110);
+        workDemand.setGroupId(group.getId());
         workDemand.setStudentCount(userList.size());
         workDemand.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         workDemandMapper.updateById(workDemand);

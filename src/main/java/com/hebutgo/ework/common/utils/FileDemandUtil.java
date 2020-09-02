@@ -1,7 +1,6 @@
 package com.hebutgo.ework.common.utils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.exception.FileException;
 import com.hebutgo.ework.entity.FileDemand;
 import com.hebutgo.ework.entity.vo.FileUploadVo;
@@ -16,12 +15,14 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  *
@@ -91,16 +92,16 @@ public class FileDemandUtil {
     /**
      * 存储文件到系统
      * @param file 文件
-     * @param adminId 用户id 用于生成文件夹
      * @return 文件id
      */
-    public FileUploadVo storeFileInDatabase(MultipartFile file, String note, Integer adminId) {
+    public FileUploadVo storeFileInDatabase(MultipartFile file, String note/*, Integer adminId*/) {
         this.getLocation();
         // 完整文件名
         String originName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         // 文件名后缀，最后一个.后面的
         String ext = originName.substring(originName.lastIndexOf("."));
-        String folder = "admin_" + adminId;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String folder = "admin_" + sdf.format(new Date()).substring(4, 8);
         // 文件名拼接
         String fileName = originName.substring(0,originName.lastIndexOf(".")) + "-" + System.currentTimeMillis() + ext;
         folder = clearFilePath(folder);
@@ -112,15 +113,19 @@ public class FileDemandUtil {
             }
             // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            InputStream inputStream = file.getInputStream();
+//            System.out.println(targetLocation);
+//            Files.createFile(targetLocation);
+            targetLocation.toFile();
+            Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
             if (note == null) {
                 note = "";
             }
             fileDemandMapper.insert(
-                    FileDemand.builder().fileName(file.getName()).url(fileName).adminId(adminId).build()
+                    FileDemand.builder().fileName(file.getName()).url(fileName).build()
             );
             QueryWrapper<FileDemand> fileDemandQueryWrapper = new QueryWrapper<>();
-            fileDemandQueryWrapper.setEntity(FileDemand.builder().fileName(file.getName()).url(fileName).adminId(adminId).build());
+            fileDemandQueryWrapper.setEntity(FileDemand.builder().fileName(file.getName()).url(fileName).build());
             FileDemand fileDemand1 = fileDemandMapper.selectOne(fileDemandQueryWrapper);
             FileUploadVo fileUploadVo = new FileUploadVo();
             fileUploadVo.setId(fileDemand1.getId());

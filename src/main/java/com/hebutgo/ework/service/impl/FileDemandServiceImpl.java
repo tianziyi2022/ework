@@ -3,6 +3,7 @@ package com.hebutgo.ework.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.common.exception.FileException;
+import com.hebutgo.ework.common.utils.FileDemandUtil;
 import com.hebutgo.ework.common.utils.FileInfo;
 import com.hebutgo.ework.common.utils.FileUtil;
 import com.hebutgo.ework.entity.Admin;
@@ -39,6 +40,9 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
 
     @Resource
     AdminMapper adminMapper;
+
+    @Resource
+    FileDemandUtil fileDemandUtil;
 
     @Override
     public FileUploadVo upload(FileUploadRequest fileUploadRequest) {
@@ -123,5 +127,10 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
         fileUploadVo.setUrl(fileDemand1.getUrl());
         fileUploadVo.setTopic("上传成功");
         return fileUploadVo;
+    }
+
+    @Override
+    public FileUploadVo upload(MultipartFile multipartFile) {
+        return fileDemandUtil.storeFileInDatabase(multipartFile,null);
     }
 }

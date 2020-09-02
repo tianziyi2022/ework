@@ -312,4 +312,41 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         adminDetailVo.setAdminGroupDetailVoList(adminGroupDetailVoList);
         return adminDetailVo;
     }
+
+    @Override
+    public List<WorkGroupVo> groupList(AccountDetailRequest accountDetailRequest) {
+        if(accountDetailRequest.getType()!=10){
+            throw new BizException("用户类型错误");
+        }
+        Admin admin = adminMapper.selectById(accountDetailRequest.getId());
+        if(Objects.isNull(admin)){
+            throw new BizException("用户不存在");
+        }
+        if(admin.getStatus()!=10) {
+            throw new BizException("用户状态异常");
+        }
+        if(!Objects.equals(admin.getToken(), accountDetailRequest.getToken())){
+            throw new BizException("未登陆或登陆超时");
+        }
+        List<WorkGroupVo> workGroupVoList = new ArrayList<>();
+        GroupInfo groupInfo = new GroupInfo();
+        groupInfo.setCreateAdmin(admin.getId());
+        QueryWrapper<GroupInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.setEntity(groupInfo);
+        List<GroupInfo> createGroupInfoList = groupInfoMapper.selectList(queryWrapper);
+        for(GroupInfo groupInfo1 : createGroupInfoList){
+            workGroupVoList.add(new WorkGroupVo(groupInfo1));
+        }
+        GroupAdmin groupAdmin0 = new GroupAdmin();
+        groupAdmin0.setAdminId(admin.getId());
+        groupAdmin0.setIsDelete(0);
+        QueryWrapper<GroupAdmin> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.setEntity(groupAdmin0);
+        List<GroupAdmin> groupAdminList = groupAdminMapper.selectList(queryWrapper1);
+        for(GroupAdmin groupAdmin1 :groupAdminList){
+            GroupInfo groupInfo1 = groupInfoMapper.selectById(groupAdmin1.getGroupId());
+            workGroupVoList.add(new WorkGroupVo(groupInfo1));
+        }
+        return workGroupVoList;
+    }
 }

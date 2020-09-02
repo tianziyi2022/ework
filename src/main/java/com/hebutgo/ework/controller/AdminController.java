@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * <p>
  * 管理员（教师）表 前端控制器
@@ -150,5 +152,25 @@ public class AdminController {
         }
         logger.info("管理员查看账户信息成功");
         return ApiResponse.success(adminDetailVo);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "管理员获取管理小组信息（发布作业用）", tags = CommonConstant.ADMIN_ACCOUNT)
+    @PostMapping("/groupList")
+    public ApiResponse<List<WorkGroupVo>> groupList(
+            @RequestBody AccountDetailRequest accountDetailRequest
+    ) {
+        List<WorkGroupVo> workGroupVoList;
+        try {
+            workGroupVoList = iAdminService.groupList(accountDetailRequest);
+        } catch (BizException e) {
+            logger.error("管理员获取管理小组信息（发布作业用）失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("管理员获取管理小组信息（发布作业用）失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("管理员获取管理小组信息（发布作业用）成功");
+        return ApiResponse.success(workGroupVoList);
     }
 }
