@@ -65,13 +65,13 @@ public class WorkDemandController {
         try{
             createDemandVo = iWorkDemandService.change(changeDemandRequest);
         }catch (BizException e) {
-            logger.error("新建作业要求失败", e);
+            logger.error("管理员修改作业要求失败", e);
             return ApiResponse.error(e.getErrMessage());
         } catch (Exception e) {
-            logger.error("新建作业要求失败", e);
+            logger.error("管理员修改作业要求失败", e);
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
-        logger.info("新建作业要求成功");
+        logger.info("管理员修改作业要求成功");
         return ApiResponse.success(createDemandVo);
     }
 
