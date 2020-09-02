@@ -460,7 +460,7 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             if(workSubmit.getStatus()!=210&&workSubmit.getStatus()!=220&&workSubmit.getStatus()!=230){
                 throw new BizException("作业状态不允许查看");
             }
-            User user = userMapper.selectById(workSubmit.getId());
+            User user = userMapper.selectById(workSubmit.getStudentId());
             GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
             if(!Objects.equals(group.getCreateAdmin(), workDetailRequest.getId())){
                 GroupAdmin groupAdmin = new GroupAdmin();
