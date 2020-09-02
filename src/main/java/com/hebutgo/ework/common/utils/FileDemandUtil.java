@@ -116,16 +116,20 @@ public class FileDemandUtil {
             InputStream inputStream = file.getInputStream();
 //            System.out.println(targetLocation);
 //            Files.createFile(targetLocation);
+            final Path tmp = targetLocation.getParent();
+            if(tmp!=null){
+                Files.createDirectories(tmp);
+            }
             targetLocation.toFile();
             Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
             if (note == null) {
                 note = "";
             }
-            fileDemandMapper.insert(
-                    FileDemand.builder().fileName(file.getName()).url(fileName).build()
-            );
+            FileDemand fileDemand = FileDemand.builder().fileName(originName).url(fileName).build();
+            System.out.println(fileDemand);
+            fileDemandMapper.insert(fileDemand);
             QueryWrapper<FileDemand> fileDemandQueryWrapper = new QueryWrapper<>();
-            fileDemandQueryWrapper.setEntity(FileDemand.builder().fileName(file.getName()).url(fileName).build());
+            fileDemandQueryWrapper.setEntity(fileDemand);
             FileDemand fileDemand1 = fileDemandMapper.selectOne(fileDemandQueryWrapper);
             FileUploadVo fileUploadVo = new FileUploadVo();
             fileUploadVo.setId(fileDemand1.getId());

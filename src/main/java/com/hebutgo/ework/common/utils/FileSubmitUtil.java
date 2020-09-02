@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,15 +113,23 @@ public class FileSubmitUtil {
             }
             // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            InputStream inputStream = file.getInputStream();
+//            System.out.println(targetLocation);
+//            Files.createFile(targetLocation);
+            final Path tmp = targetLocation.getParent();
+            if(tmp!=null){
+                Files.createDirectories(tmp);
+            }
+            targetLocation.toFile();
+            Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
             if (note == null) {
                 note = "";
             }
-            fileSubmitMapper.insert(
-                    FileSubmit.builder().fileName(file.getName()).url(fileName).build()
-            );
+            FileSubmit fileSubmit = FileSubmit.builder().fileName(originName).url(fileName).build();
+            System.out.println(fileSubmit);
+            fileSubmitMapper.insert(fileSubmit);
             QueryWrapper<FileSubmit> fileSubmitQueryWrapper = new QueryWrapper<>();
-            fileSubmitQueryWrapper.setEntity(FileSubmit.builder().fileName(file.getName()).url(fileName).build());
+            fileSubmitQueryWrapper.setEntity(fileSubmit);
             FileSubmit fileSubmit1 = fileSubmitMapper.selectOne(fileSubmitQueryWrapper);
             FileUploadVo fileUploadVo = new FileUploadVo();
             fileUploadVo.setId(fileSubmit1.getId());
