@@ -292,7 +292,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         if(!Objects.equals(workDemand.getAnnouncerId(), deleteDemandRequest.getId())){
             throw new BizException("非作业创建者不能撤回作业");
         }
-        if(workDemand.getStatus()==110||workDemand.getStatus()==120){
+        if(workDemand.getStatus()==10||workDemand.getStatus()==20){
             throw new BizException("作业状态不允许撤回("+workDemand.getStatus()+")");
         }
         workDemand.setStatus(20);
