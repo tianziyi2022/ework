@@ -31,6 +31,12 @@ public class AnnounceDemandRequest {
     @ApiModelProperty(value = "结束（收作业）时间")
     private Timestamp endTime;
 
+    @ApiModelProperty(value = "开始（收作业）时间（整数格式）")
+    private Integer startTimeMills;
+
+    @ApiModelProperty(value = "结束（收作业）时间（整数格式）")
+    private Integer endTimeMills;
+
     @ApiModelProperty(value = "发放小组id")
     private Integer groupId;
 }
