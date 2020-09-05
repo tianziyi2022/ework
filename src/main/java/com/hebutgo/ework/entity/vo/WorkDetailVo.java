@@ -39,7 +39,7 @@ public class WorkDetailVo {
     private String description;
 
     @ApiModelProperty(value = "作业要求附件链接")
-    private Integer appendixUrl;
+    private String appendixUrl;
 
     @ApiModelProperty(value = "发布者（管理员）姓名")
     private String announcerName;
@@ -54,19 +54,19 @@ public class WorkDetailVo {
     private String text;
 
     @ApiModelProperty(value = "附件1链接")
-    private Integer appendixUrl1;
+    private String appendixUrl1;
 
     @ApiModelProperty(value = "附件2链接")
-    private Integer appendixUrl2;
+    private String appendixUrl2;
 
     @ApiModelProperty(value = "附件3链接")
-    private Integer appendixUrl3;
+    private String appendixUrl3;
 
     @ApiModelProperty(value = "附件4链接")
-    private Integer appendixUrl4;
+    private String appendixUrl4;
 
     @ApiModelProperty(value = "附件5链接")
-    private Integer appendixUrl5;
+    private String appendixUrl5;
 
     @ApiModelProperty(value = "批改教师姓名")
     private String correctName;
@@ -97,16 +97,16 @@ public class WorkDetailVo {
         this.submitId = workSubmit.getSubmitId();
         this.title = workDemand.getTitle();
         this.description = workDemand.getDescription();
-        this.appendixUrl = workDemand.getAppendixUrl();
+//        this.appendixUrl = workDemand.getAppendixUrl();
         this.announcerName = announcerName;
         this.studentId = user.getStudentId();
         this.userName = user.getUserName();
         this.text = workSubmit.getText();
-        this.appendixUrl1 = workSubmit.getAppendixUrl1();
-        this.appendixUrl2 = workSubmit.getAppendixUrl2();
-        this.appendixUrl3 = workSubmit.getAppendixUrl3();
-        this.appendixUrl4 = workSubmit.getAppendixUrl4();
-        this.appendixUrl5 = workSubmit.getAppendixUrl5();
+//        this.appendixUrl1 = workSubmit.getAppendixUrl1();
+//        this.appendixUrl2 = workSubmit.getAppendixUrl2();
+//        this.appendixUrl3 = workSubmit.getAppendixUrl3();
+//        this.appendixUrl4 = workSubmit.getAppendixUrl4();
+//        this.appendixUrl5 = workSubmit.getAppendixUrl5();
         this.correctName = correctName;
         this.score = workSubmit.getScore();
         this.comment = workSubmit.getComment();
@@ -122,16 +122,16 @@ public class WorkDetailVo {
         this.submitId = workSubmit.getSubmitId();
         this.title = workDemand.getTitle();
         this.description = workDemand.getDescription();
-        this.appendixUrl = workDemand.getAppendixUrl();
+//        this.appendixUrl = workDemand.getAppendixUrl();
         this.announcerName = announcerName;
         this.studentId = user.getStudentId();
         this.userName = user.getUserName();
         this.text = workSubmit.getText();
-        this.appendixUrl1 = workSubmit.getAppendixUrl1();
-        this.appendixUrl2 = workSubmit.getAppendixUrl2();
-        this.appendixUrl3 = workSubmit.getAppendixUrl3();
-        this.appendixUrl4 = workSubmit.getAppendixUrl4();
-        this.appendixUrl5 = workSubmit.getAppendixUrl5();
+//        this.appendixUrl1 = workSubmit.getAppendixUrl1();
+//        this.appendixUrl2 = workSubmit.getAppendixUrl2();
+//        this.appendixUrl3 = workSubmit.getAppendixUrl3();
+//        this.appendixUrl4 = workSubmit.getAppendixUrl4();
+//        this.appendixUrl5 = workSubmit.getAppendixUrl5();
         this.status = workSubmit.getStatus();
         this.startTime = workDemand.getStartTime();
         this.endTime = workDemand.getEndTime();
