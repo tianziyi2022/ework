@@ -735,6 +735,48 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
                     Admin correct = adminMapper.selectById(workSubmit1.getCorrectId());
                     workDetailVo = new WorkDetailVo(workSubmit1, workDemand, user, announcer.getUserName(), correct.getUserName());
                 }
+                if(!Objects.isNull(workDemand.getAppendixUrl())){
+                    FileDemand fileDemand = fileDemandMapper.selectById(workDemand.getAppendixUrl());
+                    if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
+                        throw new BizException("文件不存在");
+                    }
+                    workDetailVo.setAppendixUrl("E:/Files/Demand/Upload/"+fileDemand.getUrl());
+                }
+                if(!Objects.isNull(workSubmit1.getAppendixUrl1())){
+                    FileSubmit fileSubmit = fileSubmitMapper.selectById(workSubmit1.getAppendixUrl1());
+                    if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
+                        throw new BizException("文件不存在");
+                    }
+                    workDetailVo.setAppendixUrl("E:/Files/Submit/Upload/"+fileSubmit.getUrl());
+                }
+                if(!Objects.isNull(workSubmit1.getAppendixUrl2())){
+                    FileSubmit fileSubmit = fileSubmitMapper.selectById(workSubmit1.getAppendixUrl2());
+                    if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
+                        throw new BizException("文件不存在");
+                    }
+                    workDetailVo.setAppendixUrl("E:/Files/Submit/Upload/"+fileSubmit.getUrl());
+                }
+                if(!Objects.isNull(workSubmit1.getAppendixUrl3())){
+                    FileSubmit fileSubmit = fileSubmitMapper.selectById(workSubmit1.getAppendixUrl3());
+                    if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
+                        throw new BizException("文件不存在");
+                    }
+                    workDetailVo.setAppendixUrl("E:/Files/Submit/Upload/"+fileSubmit.getUrl());
+                }
+                if(!Objects.isNull(workSubmit1.getAppendixUrl4())){
+                    FileSubmit fileSubmit = fileSubmitMapper.selectById(workSubmit1.getAppendixUrl4());
+                    if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
+                        throw new BizException("文件不存在");
+                    }
+                    workDetailVo.setAppendixUrl("E:/Files/Submit/Upload/"+fileSubmit.getUrl());
+                }
+                if(!Objects.isNull(workSubmit1.getAppendixUrl5())){
+                    FileSubmit fileSubmit = fileSubmitMapper.selectById(workSubmit1.getAppendixUrl5());
+                    if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
+                        throw new BizException("文件不存在");
+                    }
+                    workDetailVo.setAppendixUrl("E:/Files/Submit/Upload/"+fileSubmit.getUrl());
+                }
                 workDetailVoList.add(workDetailVo);
             }
         }else{
