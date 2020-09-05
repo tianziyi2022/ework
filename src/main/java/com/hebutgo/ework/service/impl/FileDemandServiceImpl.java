@@ -44,8 +44,6 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
     @Resource
     FileDemandUtil fileDemandUtil;
 
-    private final Path fileStorageLocation = Path.of(URI.create("/files/work/demand/"));
-
     @Override
     public FileUploadVo upload(FileUploadRequest fileUploadRequest) {
         if(fileUploadRequest.getType()!=10){
@@ -142,7 +140,7 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
         if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
             throw new BizException("文件不存在");
         }
-        return "E:/Files/Demand/"+fileDemand.getUrl();
+        return "E:/Files/Demand/Upload/"+fileDemand.getUrl();
     }
 
     @Override

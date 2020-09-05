@@ -192,6 +192,7 @@ public class FileSubmitUtil {
      */
     public org.springframework.core.io.Resource loadFileAsResource(String fileName) {
         try {
+            this.fileStorageLocation = Paths.get(uploadPath).toAbsolutePath().normalize();
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
             if(resource.exists()) {

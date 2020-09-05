@@ -138,7 +138,7 @@ public class FileSubmitServiceImpl extends ServiceImpl<FileSubmitMapper, FileSub
         if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
             throw new BizException("文件不存在");
         }
-        return "E:/Files/Submit/"+fileSubmit.getUrl();
+        return "E:/Files/Submit/Upload/"+fileSubmit.getUrl();
     }
 
     @Override

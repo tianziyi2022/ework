@@ -80,7 +80,7 @@ public class FileDemandController {
 
     @CrossOrigin
     @ApiOperation(value = "获取文件url",tags = CommonConstant.FILE_DOWNLOAD)
-    @PostMapping(value = "/getUrl",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @GetMapping(value = "/getUrl")
     public ApiResponse<String> getUrl(
             @RequestParam("id") Integer id
     ){
@@ -95,12 +95,12 @@ public class FileDemandController {
             return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
         }
         logger.info("获取文件url成功");
-        return ApiResponse.success(string);
+        return ApiResponse.success("success",string);
     }
 
     @CrossOrigin
     @ApiOperation(value = "下载文件",tags = CommonConstant.FILE_DOWNLOAD)
-    @GetMapping(value = "/download",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @GetMapping(value = "/download")
     public ApiResponse<Resource> download(
             @RequestParam("id") Integer id
     ){
