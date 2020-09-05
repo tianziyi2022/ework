@@ -71,6 +71,7 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "已提交数量")
     private Integer submitCount;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "发放小组id")
     private Integer groupId;
 

@@ -109,7 +109,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             throw new BizException("未登陆或登陆超时");
         }
         WorkDemand workDemand = workDemandMapper.selectById(changeDemandRequest.getDemandId());
-        if(workDemand.getStatus()==0){
+        if(Objects.isNull(workDemand)||workDemand.getStatus()==0){
             throw new BizException("作业已删除");
         }
         if(!Objects.equals(workDemand.getAnnouncerId(), changeDemandRequest.getId())){
@@ -153,10 +153,10 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
     @Override
     public CreateDemandVo announce(AnnounceDemandRequest announceDemandRequest) {
         if(!Objects.equals(announceDemandRequest.getStartTimeMills(),0)){
-            announceDemandRequest.setStartTime(new Timestamp(announceDemandRequest.getStartTimeMills().longValue()+28800000));
+            announceDemandRequest.setStartTime(new Timestamp(announceDemandRequest.getStartTimeMills().longValue()));
         }
         if(!Objects.equals(announceDemandRequest.getEndTimeMills(),0)){
-            announceDemandRequest.setEndTime(new Timestamp(announceDemandRequest.getEndTimeMills().longValue()+28800000));
+            announceDemandRequest.setEndTime(new Timestamp(announceDemandRequest.getEndTimeMills().longValue()));
         }
         if(announceDemandRequest.getType()!=10){
             throw new BizException("用户类型错误");
@@ -312,6 +312,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         workDemand.setStudentCount(0);
         workDemand.setStartTime(null);
         workDemand.setEndTime(null);
+        workDemand.setGroupId(null);
         workDemand.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         WorkSubmit workSubmit0 = new WorkSubmit();
         workSubmit0.setDemandId(workDemand.getId());
