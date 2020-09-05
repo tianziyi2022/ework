@@ -308,6 +308,8 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             throw new BizException("作业状态不允许撤回("+workDemand.getStatus()+")");
         }
         workDemand.setStatus(20);
+        workDemand.setSubmitCount(0);
+        workDemand.setStudentCount(0);
         workDemand.setStartTime(null);
         workDemand.setEndTime(null);
         workDemand.setUpdateTime(new Timestamp(System.currentTimeMillis()));
