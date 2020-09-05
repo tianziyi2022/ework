@@ -140,4 +140,13 @@ public class FileSubmitServiceImpl extends ServiceImpl<FileSubmitMapper, FileSub
         }
         return "E:/Files/Submit/"+fileSubmit.getUrl();
     }
+
+    @Override
+    public org.springframework.core.io.Resource download(Integer id) {
+        FileSubmit fileSubmit = fileSubmitMapper.selectById(id);
+        if(Objects.isNull(fileSubmit)||fileSubmit.getIsDelete()==1){
+            throw new BizException("文件不存在");
+        }
+        return fileSubmitUtil.loadFileAsResource(fileSubmit.getUrl());
+    }
 }

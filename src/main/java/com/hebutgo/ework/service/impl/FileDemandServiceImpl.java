@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.common.exception.FileException;
 import com.hebutgo.ework.common.utils.FileDemandUtil;
-import com.hebutgo.ework.common.utils.FileInfo;
-import com.hebutgo.ework.common.utils.FileUtil;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.FileDemand;
 import com.hebutgo.ework.entity.request.FileUploadRequest;
@@ -14,14 +12,16 @@ import com.hebutgo.ework.mapper.AdminMapper;
 import com.hebutgo.ework.mapper.FileDemandMapper;
 import com.hebutgo.ework.service.IFileDemandService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.StandardCopyOption;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -43,6 +43,8 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
 
     @Resource
     FileDemandUtil fileDemandUtil;
+
+    private final Path fileStorageLocation = Path.of(URI.create("/files/work/demand/"));
 
     @Override
     public FileUploadVo upload(FileUploadRequest fileUploadRequest) {
@@ -141,5 +143,14 @@ public class FileDemandServiceImpl extends ServiceImpl<FileDemandMapper, FileDem
             throw new BizException("文件不存在");
         }
         return "E:/Files/Demand/"+fileDemand.getUrl();
+    }
+
+    @Override
+    public org.springframework.core.io.Resource download(Integer id) {
+        FileDemand fileDemand = fileDemandMapper.selectById(id);
+        if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
+            throw new BizException("文件不存在");
+        }
+        return fileDemandUtil.loadFileAsResource(fileDemand.getUrl());
     }
 }

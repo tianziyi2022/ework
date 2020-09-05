@@ -4,6 +4,7 @@ import com.hebutgo.ework.entity.FileSubmit;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hebutgo.ework.entity.request.FileUploadRequest;
 import com.hebutgo.ework.entity.vo.FileUploadVo;
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -19,4 +20,5 @@ public interface IFileSubmitService extends IService<FileSubmit> {
     public FileUploadVo upload(FileUploadRequest fileUploadRequest,MultipartFile multipartFile);
     public FileUploadVo upload(MultipartFile multipartFile);
     public String getUrl(Integer id);
+    public Resource download(Integer id);
 }

@@ -8,6 +8,7 @@ import com.hebutgo.ework.mapper.FileSubmitMapper;
 import org.mybatis.logging.Logger;
 import org.mybatis.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -180,6 +182,25 @@ public class FileSubmitUtil {
             Files.createDirectories(this.fileStorageLocation);
         } catch (Exception ex) {
             throw new FileException("Could not create the directory where the uploaded files will be stored.", ex);
+        }
+    }
+
+    /**
+     * 加载文件
+     * @param fileName 文件名
+     * @return 文件
+     */
+    public org.springframework.core.io.Resource loadFileAsResource(String fileName) {
+        try {
+            Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+            org.springframework.core.io.Resource resource = new UrlResource(filePath.toUri());
+            if(resource.exists()) {
+                return resource;
+            } else {
+                throw new FileException("File not found " + fileName);
+            }
+        } catch (MalformedURLException ex) {
+            throw new FileException("File not found " + fileName, ex);
         }
     }
 }

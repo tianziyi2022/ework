@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,5 +94,25 @@ public class FileSubmitController {
         }
         logger.info("获取文件url成功");
         return ApiResponse.success(string);
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "下载文件",tags = CommonConstant.FILE_DOWNLOAD)
+    @GetMapping(value = "/download",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Resource> download(
+            @RequestParam("id") Integer id
+    ){
+        Resource resource;
+        try{
+            resource = iFileSubmitService.download(id);
+        }catch (BizException e) {
+            logger.error("下载文件失败", e);
+            return ApiResponse.error(e.getErrMessage());
+        } catch (Exception e) {
+            logger.error("下载文件失败", e);
+            return ApiResponse.error(ErrorCodeEnum.SYSTEM_DEFAULT_ERROR);
+        }
+        logger.info("下载文件成功");
+        return ApiResponse.success(resource);
     }
 }
