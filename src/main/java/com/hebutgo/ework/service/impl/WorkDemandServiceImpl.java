@@ -71,6 +71,9 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         workDemand.setDescription(createDemandRequest.getDescription());
         if(createDemandRequest.getAppendixUrl()!=0){
             FileDemand fileDemand = fileDemandMapper.selectById(createDemandRequest.getAppendixUrl());
+            if(Objects.isNull(fileDemand)){
+                throw new BizException("附件选择失败");
+            }
             if(Objects.isNull(fileDemand.getAdminId())&&!fileDemand.getAdminId().equals(createDemandRequest.getId())){
                 throw new BizException("不能添加他人上传的附件");
             }
@@ -147,10 +150,10 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
     @Override
     public CreateDemandVo announce(AnnounceDemandRequest announceDemandRequest) {
         if(!Objects.equals(announceDemandRequest.getStartTimeMills(),0)){
-            announceDemandRequest.setStartTime(new Timestamp(announceDemandRequest.getStartTimeMills().longValue()));
+            announceDemandRequest.setStartTime(new Timestamp(announceDemandRequest.getStartTimeMills().longValue()+28800000));
         }
         if(!Objects.equals(announceDemandRequest.getEndTimeMills(),0)){
-            announceDemandRequest.setEndTime(new Timestamp(announceDemandRequest.getEndTimeMills().longValue()));
+            announceDemandRequest.setEndTime(new Timestamp(announceDemandRequest.getEndTimeMills().longValue()+28800000));
         }
         if(announceDemandRequest.getType()!=10){
             throw new BizException("用户类型错误");
@@ -302,6 +305,8 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             throw new BizException("作业状态不允许撤回("+workDemand.getStatus()+")");
         }
         workDemand.setStatus(20);
+        workDemand.setStartTime(null);
+        workDemand.setEndTime(null);
         workDemand.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         WorkSubmit workSubmit0 = new WorkSubmit();
         workSubmit0.setDemandId(workDemand.getId());

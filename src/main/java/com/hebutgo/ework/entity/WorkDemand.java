@@ -57,9 +57,11 @@ public class WorkDemand extends Model<WorkDemand> {
     @ApiModelProperty(value = "作业状态（110已发布，120修改后发布，0无效，10已保存未发布，20已修改未发布）")
     private Integer status;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "开始（收作业）时间")
     private Timestamp startTime;
 
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "结束（收作业）时间")
     private Timestamp endTime;
 
