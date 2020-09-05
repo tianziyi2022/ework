@@ -155,10 +155,10 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
     @Override
     public CreateDemandVo announce(AnnounceDemandRequest announceDemandRequest) {
         if(!Objects.equals(announceDemandRequest.getStartTimeMills(),0)){
-            announceDemandRequest.setStartTime(new Timestamp(announceDemandRequest.getStartTimeMills().longValue()));
+            announceDemandRequest.setStartTime(new Timestamp(announceDemandRequest.getStartTimeMills().longValue()+28800000));
         }
         if(!Objects.equals(announceDemandRequest.getEndTimeMills(),0)){
-            announceDemandRequest.setEndTime(new Timestamp(announceDemandRequest.getEndTimeMills().longValue()));
+            announceDemandRequest.setEndTime(new Timestamp(announceDemandRequest.getEndTimeMills().longValue()+28800000));
         }
         if(announceDemandRequest.getType()!=10){
             throw new BizException("用户类型错误");
