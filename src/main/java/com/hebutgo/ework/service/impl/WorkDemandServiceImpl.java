@@ -2,6 +2,7 @@ package com.hebutgo.ework.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.hebutgo.ework.common.exception.BizException;
+import com.hebutgo.ework.common.utils.FileDemandUtil;
 import com.hebutgo.ework.entity.*;
 import com.hebutgo.ework.entity.request.*;
 import com.hebutgo.ework.entity.vo.CreateDemandVo;
@@ -358,6 +359,13 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             throw new BizException("非作业创建者不能查看作业");
         }
         DemandDetailVo demandDetailVo = new DemandDetailVo(workDemand);
+        if(!Objects.isNull(workDemand.getAppendixUrl())){
+            FileDemand fileDemand = fileDemandMapper.selectById(workDemand.getAppendixUrl());
+            if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
+                throw new BizException("文件不存在");
+            }
+            demandDetailVo.setAppendixUrl("E:/Files/Demand/Upload/"+fileDemand.getUrl());
+        }
         return demandDetailVo;
     }
 
@@ -384,6 +392,13 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         List<DemandDetailVo> demandDetailVoList = new ArrayList<>();
         for(WorkDemand workDemand1 : workDemandList){
             DemandDetailVo demandDetailVo = new DemandDetailVo(workDemand1);
+            if(!Objects.isNull(workDemand1.getAppendixUrl())){
+                FileDemand fileDemand = fileDemandMapper.selectById(workDemand1.getAppendixUrl());
+                if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
+                    throw new BizException("文件不存在");
+                }
+                demandDetailVo.setAppendixUrl("E:/Files/Demand/Upload/"+fileDemand.getUrl());
+            }
             demandDetailVoList.add(demandDetailVo);
         }
         return demandDetailVoList;

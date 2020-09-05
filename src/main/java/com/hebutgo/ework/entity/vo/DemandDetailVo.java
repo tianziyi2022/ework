@@ -36,7 +36,7 @@ public class DemandDetailVo {
     private String description;
 
     @ApiModelProperty(value = "附件链接")
-    private Integer appendixUrl;
+    private String appendixUrl;
 
     @ApiModelProperty(value = "作业状态（110已发布，120修改后发布，0无效，10已保存未发布，20已修改未发布）")
     private Integer status;
@@ -62,7 +62,7 @@ public class DemandDetailVo {
         this.announcerId = workDemand.getAnnouncerId();
         this.title = workDemand.getTitle();
         this.description = workDemand.getDescription();
-        this.appendixUrl = workDemand.getAppendixUrl();
+//        this.appendixUrl = workDemand.getAppendixUrl();
         this.status = workDemand.getStatus();
         this.startTime = workDemand.getStartTime();
         this.endTime = workDemand.getEndTime();
