@@ -1,6 +1,7 @@
 package com.hebutgo.ework.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.hebutgo.ework.common.CommonConstant;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.common.utils.FileDemandUtil;
 import com.hebutgo.ework.entity.*;
@@ -397,7 +398,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
                 if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
                     throw new BizException("文件不存在");
                 }
-                demandDetailVo.setAppendixUrl("E:/Files/Demand/Upload/"+fileDemand.getUrl());
+                demandDetailVo.setAppendixUrl(CommonConstant.STORE_FOLDER+CommonConstant.DEMAND_FOLDER+fileDemand.getUrl());
             }
             demandDetailVoList.add(demandDetailVo);
         }
