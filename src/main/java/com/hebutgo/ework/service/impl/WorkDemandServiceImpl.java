@@ -74,7 +74,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             if(Objects.isNull(fileDemand)){
                 throw new BizException("附件选择失败");
             }
-            if(Objects.isNull(fileDemand.getAdminId())&&!fileDemand.getAdminId().equals(createDemandRequest.getId())){
+            if(!Objects.isNull(fileDemand.getAdminId())&&!fileDemand.getAdminId().equals(createDemandRequest.getId())){
                 throw new BizException("不能添加他人上传的附件");
             }
             workDemand.setAppendixUrl(createDemandRequest.getAppendixUrl());
@@ -117,6 +117,9 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         }
         if(changeDemandRequest.getAppendixUrl()!=0){
             FileDemand fileDemand = fileDemandMapper.selectById(changeDemandRequest.getAppendixUrl());
+            if(Objects.isNull(fileDemand)){
+                throw new BizException("附件选择失败");
+            }
             if(!Objects.isNull(fileDemand.getAdminId())&&!fileDemand.getAdminId().equals(changeDemandRequest.getId())){
                 throw new BizException("不能添加他人上传的附件");
             }
