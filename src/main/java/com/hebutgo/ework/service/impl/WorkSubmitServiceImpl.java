@@ -1,6 +1,7 @@
 package com.hebutgo.ework.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.CommonConstant;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.*;
@@ -10,6 +11,7 @@ import com.hebutgo.ework.entity.vo.WorkDetailVo;
 import com.hebutgo.ework.mapper.*;
 import com.hebutgo.ework.service.IWorkSubmitService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -94,28 +96,11 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             throw new BizException("作业无效");
         }
         if(!Objects.isNull(workDemand.getEndTime())){
-            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业已结束提交");
             }
         }
-        if(!"".equals(completeWorkRequest.getText())){
-            workSubmit.setText(completeWorkRequest.getText());
-        }
-        if(completeWorkRequest.getAppendixUrl1()!=0){
-            workSubmit.setAppendixUrl1(completeWorkRequest.getAppendixUrl1());
-        }
-        if(completeWorkRequest.getAppendixUrl2()!=0){
-            workSubmit.setAppendixUrl2(completeWorkRequest.getAppendixUrl2());
-        }
-        if(completeWorkRequest.getAppendixUrl3()!=0){
-            workSubmit.setAppendixUrl3(completeWorkRequest.getAppendixUrl3());
-        }
-        if(completeWorkRequest.getAppendixUrl4()!=0){
-            workSubmit.setAppendixUrl4(completeWorkRequest.getAppendixUrl4());
-        }
-        if(completeWorkRequest.getAppendixUrl5()!=0){
-            workSubmit.setAppendixUrl5(completeWorkRequest.getAppendixUrl5());
-        }
+        BeanUtils.copyProperties(completeWorkRequest,workSubmit);
         workSubmit.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         try {
             workSubmitMapper.updateById(workSubmit);
@@ -123,9 +108,7 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             throw new BizException("保存时错误，请检查附件");
         }
         SubmitWorkVo submitWorkVo = new SubmitWorkVo();
-        submitWorkVo.setId(workSubmit.getId());
-        submitWorkVo.setTitle(workDemand.getTitle());
-        submitWorkVo.setUserName(user.getUserName());
+        BeanUtils.copyProperties(workSubmit,submitWorkVo);
         return submitWorkVo;
     }
 
@@ -153,12 +136,12 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         }
         WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
         if(!Objects.isNull(workDemand.getStartTime())){
-            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未开始提交");
             }
         }
         if(!Objects.isNull(workDemand.getEndTime())){
-            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业已结束提交");
             }
         }
@@ -213,12 +196,12 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         }
         WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
         if(!Objects.isNull(workDemand.getStartTime())){
-            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未开始提交，不能撤回");
             }
         }
         if(!Objects.isNull(workDemand.getEndTime())){
-            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业已结束提交，不能撤回");
             }
         }
@@ -275,18 +258,23 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             groupAdmin.setAdminId(returnWorkRequest.getId());
             groupAdmin.setGroupId(user.getGroupId());
             groupAdminQueryWrapper.setEntity(groupAdmin);
-            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+            if(Objects.isNull(groupAdminMapper.selectOne(
+                    Wrappers.lambdaQuery(GroupAdmin.class)
+                    .eq(GroupAdmin::getAdminId,returnWorkRequest.getId())
+                    .eq(GroupAdmin::getGroupId,user.getGroupId())
+                    .eq(GroupAdmin::getIsDelete,0)
+            ))){
                 throw new BizException("该管理员不在作业完成人小组内，无法撤回");
             }
         }
         WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
         if(!Objects.isNull(workDemand.getStartTime())){
-            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未开始提交，不能撤回");
             }
         }
         if(!Objects.isNull(workDemand.getEndTime())){
-            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getEndTime().before(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业已结束提交，不能撤回");
             }
         }
@@ -311,8 +299,7 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         workDemand.setSubmitCount(workDemand.getSubmitCount()-1);
         workDemandMapper.updateById(workDemand);
         SubmitWorkVo submitWorkVo = new SubmitWorkVo();
-        submitWorkVo.setId(workSubmit.getId());
-        submitWorkVo.setTitle(workDemand.getTitle());
+        BeanUtils.copyProperties(workSubmit,submitWorkVo);
         submitWorkVo.setUserName(user.getUserName());
         return submitWorkVo;
     }
@@ -339,24 +326,23 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         User user = userMapper.selectById(workSubmit.getStudentId());
         GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
         if(!Objects.equals(group.getCreateAdmin(), correctWorkRequest.getId())){
-            GroupAdmin groupAdmin = new GroupAdmin();
-            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
-            groupAdmin.setIsDelete(0);
-            groupAdmin.setAdminId(correctWorkRequest.getId());
-            groupAdmin.setGroupId(user.getGroupId());
-            groupAdminQueryWrapper.setEntity(groupAdmin);
-            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+            if(Objects.isNull(groupAdminMapper.selectOne(
+                    Wrappers.lambdaQuery(GroupAdmin.class)
+                    .eq(GroupAdmin::getAdminId,correctWorkRequest.getId())
+                    .eq(GroupAdmin::getGroupId,user.getGroupId())
+                    .eq(GroupAdmin::getIsDelete,0)
+            ))){
                 throw new BizException("该管理员不在作业完成人小组内，无法撤回");
             }
         }
         WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
         if(!Objects.isNull(workDemand.getStartTime())){
-            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未开始提交，不能批改");
             }
         }
         if(!Objects.isNull(workDemand.getEndTime())){
-            if(workDemand.getEndTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getEndTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未结束提交，不能批改");
             }
         }
@@ -408,24 +394,23 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
         User user = userMapper.selectById(workSubmit.getStudentId());
         GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
         if(!Objects.equals(group.getCreateAdmin(), correctWorkRequest.getId())){
-            GroupAdmin groupAdmin = new GroupAdmin();
-            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
-            groupAdmin.setIsDelete(0);
-            groupAdmin.setAdminId(correctWorkRequest.getId());
-            groupAdmin.setGroupId(user.getGroupId());
-            groupAdminQueryWrapper.setEntity(groupAdmin);
-            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+            if(Objects.isNull(groupAdminMapper.selectOne(
+                    Wrappers.lambdaQuery(GroupAdmin.class)
+                            .eq(GroupAdmin::getAdminId,correctWorkRequest.getId())
+                            .eq(GroupAdmin::getGroupId,user.getGroupId())
+                            .eq(GroupAdmin::getIsDelete,0)
+            ))){
                 throw new BizException("该管理员不在作业完成人小组内，无法撤回");
             }
         }
         WorkDemand workDemand = workDemandMapper.selectById(workSubmit.getDemandId());
         if(!Objects.isNull(workDemand.getStartTime())){
-            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getStartTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未开始提交，不能批改");
             }
         }
         if(!Objects.isNull(workDemand.getEndTime())){
-            if(workDemand.getEndTime().after(new Timestamp(System.currentTimeMillis()))){
+            if(workDemand.getEndTime().after(new Timestamp(System.currentTimeMillis()+28800000))){
                 throw new BizException("作业未结束提交，不能批改");
             }
         }
@@ -470,13 +455,12 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             User user = userMapper.selectById(workSubmit.getStudentId());
             GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
             if(!Objects.equals(group.getCreateAdmin(), workDetailRequest.getId())){
-                GroupAdmin groupAdmin = new GroupAdmin();
-                QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
-                groupAdmin.setIsDelete(0);
-                groupAdmin.setAdminId(workDetailRequest.getId());
-                groupAdmin.setGroupId(user.getGroupId());
-                groupAdminQueryWrapper.setEntity(groupAdmin);
-                if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+                if(Objects.isNull(groupAdminMapper.selectOne(
+                        Wrappers.lambdaQuery(GroupAdmin.class)
+                                .eq(GroupAdmin::getAdminId,workDetailRequest.getId())
+                                .eq(GroupAdmin::getGroupId,user.getGroupId())
+                                .eq(GroupAdmin::getIsDelete,0)
+                ))){
                     throw new BizException("该管理员不在作业完成人小组内，无法查看");
                 }
             }
@@ -615,36 +599,31 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
                 throw new BizException("未登陆或登陆超时");
             }
             List<Integer> groupIdList = new ArrayList<>();
-            QueryWrapper<GroupInfo> groupInfoQueryWrapper = new QueryWrapper<>();
-            GroupInfo groupInfo0 = new GroupInfo();
-            groupInfo0.setCreateAdmin(workDetailListRequest.getId());
-            groupInfoQueryWrapper.setEntity(groupInfo0);
-            List<GroupInfo> groupInfoList = groupInfoMapper.selectList(groupInfoQueryWrapper);
+            List<GroupInfo> groupInfoList = groupInfoMapper.selectList(
+                    Wrappers.lambdaQuery(GroupInfo.class)
+                    .eq(GroupInfo::getCreateAdmin,workDetailListRequest.getId())
+            );
             for(GroupInfo groupInfo1 : groupInfoList){
                 groupIdList.add(groupInfo1.getId());
             }
-            QueryWrapper<GroupAdmin> groupAdminQueryWrapper = new QueryWrapper<>();
-            GroupAdmin groupAdmin0 = new GroupAdmin();
-            groupAdmin0.setIsDelete(0);
-            groupAdmin0.setAdminId(workDetailListRequest.getId());
-            groupAdminQueryWrapper.setEntity(groupAdmin0);
-            List<GroupAdmin> groupAdminList = groupAdminMapper.selectList(groupAdminQueryWrapper);
+            List<GroupAdmin> groupAdminList = groupAdminMapper.selectList(
+                    Wrappers.lambdaQuery(GroupAdmin.class)
+                    .eq(GroupAdmin::getAdminId,workDetailListRequest.getId())
+                    .eq(GroupAdmin::getIsDelete,0)
+            );
             for(GroupAdmin groupAdmin1 : groupAdminList){
                 groupIdList.add(groupAdmin1.getGroupId());
             }
             for (Integer integer : groupIdList) {
-                QueryWrapper<WorkDemand> workDemandQueryWrapper = new QueryWrapper<>();
-                WorkDemand workDemand0 = new WorkDemand();
-                workDemand0.setGroupId(integer);
-                workDemandQueryWrapper.setEntity(workDemand0);
-                List<WorkDemand> workDemandList1 = workDemandMapper.selectList(workDemandQueryWrapper);
+                List<WorkDemand> workDemandList1 = workDemandMapper.selectList(
+                        Wrappers.lambdaQuery(WorkDemand.class)
+                        .eq(WorkDemand::getGroupId,integer)
+                );
                 for (WorkDemand workDemand1 : workDemandList1) {
                     if (workDemand1.getStatus() != 300 && workDemand1.getStatus() != 0) {
-                        QueryWrapper<WorkSubmit> workSubmitQueryWrapper = new QueryWrapper<>();
-                        WorkSubmit workSubmit0 = new WorkSubmit();
-                        workSubmit0.setDemandId(workDemand1.getId());
-                        workSubmitQueryWrapper.setEntity(workSubmit0);
-                        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(workSubmitQueryWrapper);
+                        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(
+                                Wrappers.lambdaQuery(WorkSubmit.class)
+                                .eq(WorkSubmit::getDemandId,workDemand1.getId()));
                         for (WorkSubmit workSubmit1 : workSubmitList) {
                             if (workSubmit1.getStatus() == 210 || workSubmit1.getStatus() == 220 || workSubmit1.getStatus() == 230) {
                                 User user = userMapper.selectById(workSubmit1.getStudentId());
@@ -718,11 +697,10 @@ public class WorkSubmitServiceImpl extends ServiceImpl<WorkSubmitMapper, WorkSub
             if(!Objects.equals(user.getToken(), workDetailListRequest.getToken())){
                 throw new BizException("未登陆或登陆超时");
             }
-            QueryWrapper<WorkSubmit> workSubmitQueryWrapper = new QueryWrapper<>();
-            WorkSubmit workSubmit0 = new WorkSubmit();
-            workSubmit0.setStudentId(workDetailListRequest.getId());
-            workSubmitQueryWrapper.setEntity(workSubmit0);
-            List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(workSubmitQueryWrapper);
+            List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(
+                    Wrappers.lambdaQuery(WorkSubmit.class)
+                    .eq(WorkSubmit::getStudentId,workDetailListRequest.getId())
+            );
             for(WorkSubmit workSubmit1 : workSubmitList){
                 WorkDemand workDemand = workDemandMapper.selectById(workSubmit1.getDemandId());
                 Admin announcer = adminMapper.selectById(workDemand.getAnnouncerId());

@@ -1,6 +1,8 @@
 package com.hebutgo.ework.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.CommonConstant;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.common.utils.FileDemandUtil;
@@ -11,6 +13,7 @@ import com.hebutgo.ework.entity.vo.DemandDetailVo;
 import com.hebutgo.ework.mapper.*;
 import com.hebutgo.ework.service.IWorkDemandService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -54,6 +57,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
 
     @Override
     public CreateDemandVo create(CreateDemandRequest createDemandRequest) {
+        LambdaQueryWrapper<WorkDemand> query = Wrappers.lambdaQuery(WorkDemand.class);
         if(createDemandRequest.getType()!=10){
             throw new BizException("用户类型错误");
         }
@@ -68,10 +72,8 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             throw new BizException("未登陆或登陆超时");
         }
         WorkDemand workDemand = new WorkDemand();
-        workDemand.setAnnouncerId(createDemandRequest.getId());
-        workDemand.setTitle(createDemandRequest.getTitle());
-        workDemand.setDescription(createDemandRequest.getDescription());
-        if(createDemandRequest.getAppendixUrl()!=0){
+        BeanUtils.copyProperties(createDemandRequest,workDemand);
+        if(Objects.isNull(createDemandRequest.getAppendixUrl())){
             FileDemand fileDemand = fileDemandMapper.selectById(createDemandRequest.getAppendixUrl());
             if(Objects.isNull(fileDemand)){
                 throw new BizException("附件选择失败");
@@ -86,11 +88,11 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         workDemandMapper.insert(workDemand);
         QueryWrapper<WorkDemand> workDemandQueryWrapper = new QueryWrapper<>();
         workDemandQueryWrapper.setEntity(workDemand);
-        WorkDemand workDemand1 = workDemandMapper.selectOne(workDemandQueryWrapper);
+        WorkDemand workDemand1 = workDemandMapper.selectOne(
+                query.eq(WorkDemand::getDemandId,workDemand)
+        );
         CreateDemandVo createDemandVo = new CreateDemandVo();
-        createDemandVo.setId(workDemand1.getId());
-        createDemandVo.setDemandId(workDemand1.getDemandId());
-        createDemandVo.setTitle(workDemand1.getTitle());
+        BeanUtils.copyProperties(workDemand1,createDemandVo);
         return createDemandVo;
     }
 
@@ -117,7 +119,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         if(!Objects.equals(workDemand.getAnnouncerId(), changeDemandRequest.getId())){
             throw new BizException("非创建者不能修改作业要求");
         }
-        if(changeDemandRequest.getAppendixUrl()!=0){
+        if(Objects.isNull(changeDemandRequest.getAppendixUrl())){
             FileDemand fileDemand = fileDemandMapper.selectById(changeDemandRequest.getAppendixUrl());
             if(Objects.isNull(fileDemand)){
                 throw new BizException("附件选择失败");
@@ -127,10 +129,10 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             }
             workDemand.setAppendixUrl(changeDemandRequest.getAppendixUrl());
         }
-        if(!"".equals(changeDemandRequest.getTitle())){
+        if(!Objects.isNull(changeDemandRequest.getTitle())){
             workDemand.setTitle(changeDemandRequest.getTitle());
         }
-        if(!"".equals(changeDemandRequest.getDescription())){
+        if(!Objects.isNull(changeDemandRequest.getDescription())){
             workDemand.setDescription(changeDemandRequest.getDescription());
         }
         switch(workDemand.getStatus()){
@@ -146,9 +148,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         workDemandMapper.updateById(workDemand);
         WorkDemand workDemand1 = workDemandMapper.selectById(workDemand.getId());
         CreateDemandVo createDemandVo = new CreateDemandVo();
-        createDemandVo.setId(workDemand1.getId());
-        createDemandVo.setDemandId(workDemand1.getDemandId());
-        createDemandVo.setTitle(workDemand1.getTitle());
+        BeanUtils.copyProperties(workDemand1,createDemandVo);
         return createDemandVo;
     }
 
@@ -197,7 +197,12 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             groupAdmin.setAdminId(announceDemandRequest.getId());
             groupAdmin.setGroupId(announceDemandRequest.getGroupId());
             groupAdminQueryWrapper.setEntity(groupAdmin);
-            if(Objects.isNull(groupAdminMapper.selectOne(groupAdminQueryWrapper))){
+            if(Objects.isNull(groupAdminMapper.selectOne(
+                    Wrappers.lambdaQuery(GroupAdmin.class)
+                    .eq(GroupAdmin::getAdminId,announceDemandRequest.getId())
+                    .eq(GroupAdmin::getGroupId,announceDemandRequest.getGroupId())
+                    .eq(GroupAdmin::getIsDelete,0)
+            ))){
                 throw new BizException("该管理员不是该小组管理员或创建者");
             }
         }
@@ -230,9 +235,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         workDemandQueryWrapper.setEntity(workDemand);
         WorkDemand workDemand1 = workDemandMapper.selectById(workDemand.getId());
         CreateDemandVo createDemandVo = new CreateDemandVo();
-        createDemandVo.setId(workDemand1.getId());
-        createDemandVo.setDemandId(workDemand1.getDemandId());
-        createDemandVo.setTitle(workDemand1.getTitle());
+        BeanUtils.copyProperties(workDemand1,createDemandVo);
         return createDemandVo;
     }
 
@@ -263,24 +266,19 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         }
         workDemand.setStatus(0);
         workDemand.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-        WorkSubmit workSubmit0 = new WorkSubmit();
-        workSubmit0.setDemandId(workDemand.getId());
-        QueryWrapper<WorkSubmit> workSubmitQueryWrapper = new QueryWrapper<>();
-        workSubmitQueryWrapper.setEntity(workSubmit0);
-        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(workSubmitQueryWrapper);
+        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(
+                Wrappers.lambdaQuery(WorkSubmit.class)
+                .eq(WorkSubmit::getDemandId,workDemand.getId())
+        );
         for(WorkSubmit workSubmit1 : workSubmitList){
             workSubmit1.setStatus(0);
             workSubmit1.setUpdateTime(new Timestamp(System.currentTimeMillis()));
             workSubmitMapper.updateById(workSubmit1);
         }
         workDemandMapper.updateById(workDemand);
-        QueryWrapper<WorkDemand> workDemandQueryWrapper = new QueryWrapper<>();
-        workDemandQueryWrapper.setEntity(workDemand);
         WorkDemand workDemand1 = workDemandMapper.selectById(workDemand.getId());
         CreateDemandVo createDemandVo = new CreateDemandVo();
-        createDemandVo.setId(workDemand1.getId());
-        createDemandVo.setDemandId(workDemand1.getDemandId());
-        createDemandVo.setTitle(workDemand1.getTitle());
+        BeanUtils.copyProperties(workDemand1,createDemandVo);
         return createDemandVo;
     }
 
@@ -316,24 +314,19 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         workDemand.setEndTime(null);
         workDemand.setGroupId(null);
         workDemand.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-        WorkSubmit workSubmit0 = new WorkSubmit();
-        workSubmit0.setDemandId(workDemand.getId());
-        QueryWrapper<WorkSubmit> workSubmitQueryWrapper = new QueryWrapper<>();
-        workSubmitQueryWrapper.setEntity(workSubmit0);
-        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(workSubmitQueryWrapper);
+        List<WorkSubmit> workSubmitList = workSubmitMapper.selectList(
+                Wrappers.lambdaQuery(WorkSubmit.class)
+                .eq(WorkSubmit::getDemandId,workDemand.getId())
+        );
         for(WorkSubmit workSubmit1 : workSubmitList){
             workSubmit1.setStatus(300);
             workSubmit1.setUpdateTime(new Timestamp(System.currentTimeMillis()));
             workSubmitMapper.updateById(workSubmit1);
         }
         workDemandMapper.updateById(workDemand);
-        QueryWrapper<WorkDemand> workDemandQueryWrapper = new QueryWrapper<>();
-        workDemandQueryWrapper.setEntity(workDemand);
         WorkDemand workDemand1 = workDemandMapper.selectById(workDemand.getId());
         CreateDemandVo createDemandVo = new CreateDemandVo();
-        createDemandVo.setId(workDemand1.getId());
-        createDemandVo.setDemandId(workDemand1.getDemandId());
-        createDemandVo.setTitle(workDemand1.getTitle());
+        BeanUtils.copyProperties(workDemand1,createDemandVo);
         return createDemandVo;
     }
 
@@ -365,7 +358,7 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
             if(Objects.isNull(fileDemand)||fileDemand.getIsDelete()==1){
                 throw new BizException("文件不存在");
             }
-            demandDetailVo.setAppendixUrl("E:/Files/Demand/Upload/"+fileDemand.getUrl());
+            demandDetailVo.setAppendixUrl(CommonConstant.STORE_FOLDER+CommonConstant.DEMAND_FOLDER+fileDemand.getUrl());
         }
         return demandDetailVo;
     }
@@ -385,11 +378,10 @@ public class WorkDemandServiceImpl extends ServiceImpl<WorkDemandMapper, WorkDem
         if(!Objects.equals(admin.getToken(), demandDetailListRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
-        WorkDemand workDemand0 = new WorkDemand();
-        workDemand0.setAnnouncerId(demandDetailListRequest.getId());
-        QueryWrapper<WorkDemand> workDemandQueryWrapper = new QueryWrapper<>();
-        workDemandQueryWrapper.setEntity(workDemand0);
-        List<WorkDemand> workDemandList = workDemandMapper.selectList(workDemandQueryWrapper);
+        List<WorkDemand> workDemandList = workDemandMapper.selectList(
+                Wrappers.lambdaQuery(WorkDemand.class)
+                .eq(WorkDemand::getAnnouncerId,demandDetailListRequest.getId())
+        );
         List<DemandDetailVo> demandDetailVoList = new ArrayList<>();
         for(WorkDemand workDemand1 : workDemandList){
             DemandDetailVo demandDetailVo = new DemandDetailVo(workDemand1);

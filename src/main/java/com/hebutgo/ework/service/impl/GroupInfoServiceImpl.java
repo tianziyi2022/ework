@@ -1,8 +1,11 @@
 package com.hebutgo.ework.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
+import com.hebutgo.ework.entity.GroupAdmin;
 import com.hebutgo.ework.entity.GroupInfo;
 import com.hebutgo.ework.entity.request.ChangeGroupRequest;
 import com.hebutgo.ework.entity.request.CreateGroupRequest;
@@ -13,6 +16,7 @@ import com.hebutgo.ework.mapper.AdminMapper;
 import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.service.IGroupInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -39,6 +43,7 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
 
     @Override
     public CreateGroupVo create(CreateGroupRequest createGroupRequest) {
+        LambdaQueryWrapper<GroupInfo> query = Wrappers.lambdaQuery(GroupInfo.class);
         if(createGroupRequest.getType()!=10){
             throw new BizException("用户类型错误");
         }
@@ -52,12 +57,8 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
         if(!Objects.equals(admin.getToken(), createGroupRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
-        if(!"".equals(createGroupRequest.getGroupCode())){
-            GroupInfo group0 = new GroupInfo();
-            group0.setGroupCode(createGroupRequest.getGroupCode());
-            QueryWrapper<GroupInfo> queryWrapper0 = new QueryWrapper<>();
-            queryWrapper0.setEntity(group0);
-            if(!Objects.isNull(groupInfoMapper.selectOne(queryWrapper0))){
+        if(!Objects.isNull(createGroupRequest.getGroupCode())){
+            if(!Objects.isNull(groupInfoMapper.selectOne(query.eq(GroupInfo::getGroupCode,createGroupRequest.getGroupCode())))){
                 throw new BizException("邀请码重复");
             }
         }
@@ -65,7 +66,7 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
         group.setCreateAdmin(admin.getId());
         group.setDescriptions(createGroupRequest.getDescription());
         String groupId = "group-"+ UUID.randomUUID();
-        if("".equals(createGroupRequest.getGroupCode())){
+        if(Objects.isNull(createGroupRequest.getGroupCode())){
             group.setGroupCode(groupId);
         }else{
             group.setGroupCode(createGroupRequest.getGroupCode());
@@ -78,15 +79,13 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
         queryWrapper.setEntity(group);
         GroupInfo group1 = groupInfoMapper.selectOne(queryWrapper);
         CreateGroupVo createGroupVo = new CreateGroupVo();
-        createGroupVo.setId(group1.getId());
-        createGroupVo.setGroupCode(group1.getGroupCode());
-        createGroupVo.setGroupId(group1.getGroupId());
-        createGroupVo.setGroupName(group1.getGroupName());
+        BeanUtils.copyProperties(group1,createGroupVo);
         return createGroupVo;
     }
 
     @Override
     public CreateGroupVo change(ChangeGroupRequest changeGroupRequest) {
+        LambdaQueryWrapper<GroupInfo> query = Wrappers.lambdaQuery(GroupInfo.class);
         if(changeGroupRequest.getType()!=10){
             throw new BizException("用户类型错误");
         }
@@ -107,35 +106,18 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
         if(!Objects.equals(group.getCreateAdmin(), changeGroupRequest.getId())){
             throw new BizException("该用户不是创建者，无权修改小组信息");
         }
-        if(!"".equals(changeGroupRequest.getGroupCode())){
-            GroupInfo group0 = new GroupInfo();
-            group0.setGroupCode(changeGroupRequest.getGroupCode());
-            QueryWrapper<GroupInfo> queryWrapper0 = new QueryWrapper<>();
-            queryWrapper0.setEntity(group0);
-            if(!Objects.isNull(groupInfoMapper.selectOne(queryWrapper0))){
+        BeanUtils.copyProperties(changeGroupRequest,group);
+        if(!Objects.isNull(changeGroupRequest.getGroupCode())){
+            if(!Objects.isNull(groupInfoMapper.selectOne(query.eq(GroupInfo::getGroupCode,changeGroupRequest.getGroupCode())))){
                 throw new BizException("邀请码重复");
             }
         }
-        if(!"".equals(changeGroupRequest.getDescription())){
-            group.setDescriptions(changeGroupRequest.getDescription());
-        }
-        if(!"".equals(changeGroupRequest.getGroupCode())){
-            group.setGroupCode(changeGroupRequest.getGroupCode());
-        }
-        if(!"".equals(changeGroupRequest.getGroupName())){
-            group.setGroupName(changeGroupRequest.getGroupName());
-        }
-        if(changeGroupRequest.getStatus()!=0){
-            group.setStatus(changeGroupRequest.getStatus());
-        }
+
         group.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         groupInfoMapper.updateById(group);
         GroupInfo group1 = groupInfoMapper.selectById(group.getId());
         CreateGroupVo createGroupVo = new CreateGroupVo();
-        createGroupVo.setId(group1.getId());
-        createGroupVo.setGroupCode(group1.getGroupCode());
-        createGroupVo.setGroupId(group1.getGroupId());
-        createGroupVo.setGroupName(group1.getGroupName());
+        BeanUtils.copyProperties(group1,createGroupVo);
         return createGroupVo;
     }
 
@@ -143,17 +125,17 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
     public GroupDetailVo detail(GroupDetailRequest groupDetailRequest) {
         GroupDetailVo groupDetailVo = new GroupDetailVo();
         GroupInfo group;
-        if(groupDetailRequest.getId()!=0){
+        if(Objects.isNull(groupDetailRequest.getId())){
             group = groupInfoMapper.selectById(groupDetailRequest.getId());
             if(Objects.isNull(group)){
                 throw new BizException("不存在符合条件的小组");
             }
-            if(!"".equals(groupDetailRequest.getGroupCode())){
+            if(!Objects.isNull(groupDetailRequest.getGroupCode())){
                 if(!Objects.equals(groupDetailRequest.getGroupCode(), group.getGroupCode())){
                     throw new BizException("不存在符合条件的小组");
                 }
             }
-            if(!"".equals(groupDetailRequest.getGroupId())){
+            if(!Objects.isNull(groupDetailRequest.getGroupId())){
                 if(!Objects.equals(groupDetailRequest.getGroupId(), group.getGroupId())){
                     throw new BizException("不存在符合条件的小组");
                 }
@@ -162,11 +144,11 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
             QueryWrapper<GroupInfo> groupInfoQueryWrapper = new QueryWrapper<>();
             GroupInfo groupInfo = new GroupInfo();
             boolean flag = true;
-            if(!"".equals(groupDetailRequest.getGroupCode())){
+            if(!Objects.isNull(groupDetailRequest.getGroupCode())){
                 groupInfo.setGroupCode(groupDetailRequest.getGroupCode());
                 flag = false;
             }
-            if(!"".equals(groupDetailRequest.getGroupId())){
+            if(!Objects.isNull(groupDetailRequest.getGroupId())){
                 groupInfo.setGroupId(groupDetailRequest.getGroupId());
                 flag = false;
             }
@@ -176,12 +158,7 @@ public class GroupInfoServiceImpl extends ServiceImpl<GroupInfoMapper, GroupInfo
             groupInfoQueryWrapper.setEntity(groupInfo);
             group = groupInfoMapper.selectOne(groupInfoQueryWrapper);
         }
-        groupDetailVo.setId(group.getId());
         groupDetailVo.setCreateAdminName(adminMapper.selectById(group.getCreateAdmin()).getUserName());
-        groupDetailVo.setDescriptions(group.getDescriptions());
-        groupDetailVo.setGroupCode(group.getGroupCode());
-        groupDetailVo.setGroupName(group.getGroupName());
-        groupDetailVo.setStatus(group.getStatus());
         return groupDetailVo;
     }
 }

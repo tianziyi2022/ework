@@ -1,6 +1,8 @@
 package com.hebutgo.ework.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.GroupAdmin;
@@ -12,6 +14,7 @@ import com.hebutgo.ework.mapper.GroupAdminMapper;
 import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.service.IGroupAdminService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -41,6 +44,7 @@ public class GroupAdminServiceImpl extends ServiceImpl<GroupAdminMapper, GroupAd
 
     @Override
     public JoinGroupVo joinGroup(JoinGroupRequest joinGroupRequest) {
+        LambdaQueryWrapper<GroupAdmin> query = Wrappers.lambdaQuery(GroupAdmin.class);
         if(joinGroupRequest.getType()!=10){
             throw new BizException("用户类型错误");
         }
@@ -66,7 +70,10 @@ public class GroupAdminServiceImpl extends ServiceImpl<GroupAdminMapper, GroupAd
         groupAdmin0.setGroupId(joinGroupRequest.getGroupId());
         QueryWrapper<GroupAdmin> queryWrapper = new QueryWrapper<>();
         queryWrapper.setEntity(groupAdmin0);
-        GroupAdmin groupAdmin = groupAdminMapper.selectOne(queryWrapper);
+        GroupAdmin groupAdmin = groupAdminMapper.selectOne(
+                query.eq(GroupAdmin::getGroupId,joinGroupRequest.getGroupId())
+                .eq(GroupAdmin::getAdminId,joinGroupRequest.getId())
+        );
         if(!Objects.isNull(groupAdmin)){
             if(groupAdmin.getIsDelete()==0){
                 throw new BizException("管理员已加入小组");
@@ -83,14 +90,14 @@ public class GroupAdminServiceImpl extends ServiceImpl<GroupAdminMapper, GroupAd
             groupAdminMapper.insert(groupAdmin0);
         }
         JoinGroupVo joinGroupVo = new JoinGroupVo();
-        joinGroupVo.setGroupName(group.getGroupName());
-        joinGroupVo.setId(group.getId());
+        BeanUtils.copyProperties(group,joinGroupVo);
         joinGroupVo.setTopic("成功加入小组");
         return joinGroupVo;
     }
 
     @Override
     public JoinGroupVo quitGroup(JoinGroupRequest joinGroupRequest) {
+        LambdaQueryWrapper<GroupAdmin> query = Wrappers.lambdaQuery(GroupAdmin.class);
         if(joinGroupRequest.getType()!=10){
             throw new BizException("用户类型错误");
         }
@@ -112,11 +119,10 @@ public class GroupAdminServiceImpl extends ServiceImpl<GroupAdminMapper, GroupAd
             throw new BizException("创建者无法退出小组");
         }
         GroupAdmin groupAdmin0 = new GroupAdmin();
-        groupAdmin0.setAdminId(joinGroupRequest.getId());
-        groupAdmin0.setGroupId(joinGroupRequest.getGroupId());
-        QueryWrapper<GroupAdmin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.setEntity(groupAdmin0);
-        GroupAdmin groupAdmin = groupAdminMapper.selectOne(queryWrapper);
+        GroupAdmin groupAdmin = groupAdminMapper.selectOne(
+                query.eq(GroupAdmin::getAdminId,joinGroupRequest.getId())
+                .eq(GroupAdmin::getGroupId,joinGroupRequest.getId())
+        );
         if(Objects.isNull(groupAdmin)){
             throw new BizException("该管理员不在该小组内");
         }
@@ -127,8 +133,7 @@ public class GroupAdminServiceImpl extends ServiceImpl<GroupAdminMapper, GroupAd
         groupAdmin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         groupAdminMapper.updateById(groupAdmin);
         JoinGroupVo joinGroupVo = new JoinGroupVo();
-        joinGroupVo.setGroupName(group.getGroupName());
-        joinGroupVo.setId(group.getId());
+        BeanUtils.copyProperties(group,joinGroupVo);
         joinGroupVo.setTopic("成功退出小组");
         return joinGroupVo;
     }

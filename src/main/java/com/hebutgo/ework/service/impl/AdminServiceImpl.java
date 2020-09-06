@@ -1,7 +1,9 @@
 package com.hebutgo.ework.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.GroupAdmin;
@@ -14,8 +16,10 @@ import com.hebutgo.ework.mapper.GroupAdminMapper;
 import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.service.IAdminService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.tomcat.jni.Time;
 import org.checkerframework.checker.units.qual.C;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -51,11 +55,12 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Override
     public RegisterVo register(AdminRegisterRequest adminRegisterRequest) {
+        LambdaQueryWrapper<Admin> query = Wrappers.lambdaQuery(Admin.class);
         Admin admin0 = new Admin();
         admin0.setUserId(adminRegisterRequest.getUserId());
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.setEntity(admin0);
-        Admin admin = adminMapper.selectOne(queryWrapper);
+        Admin admin = adminMapper.selectOne(
+                query.eq(Admin::getUserId,adminRegisterRequest.getUserId())
+        );
         if (!Objects.isNull(admin)){
             if(admin.getStatus().equals(10)) {
                 throw new BizException("该用户名已被注册");
@@ -64,10 +69,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
                 adminMapper.updateById(admin);
             }
         }
-        admin0 = new Admin();
-        admin0.setPhone(adminRegisterRequest.getPhone());
-        queryWrapper.setEntity(admin0);
-        admin = adminMapper.selectOne(queryWrapper);
+        admin = adminMapper.selectOne(
+                query.eq(Admin::getPhone,adminRegisterRequest.getPhone())
+        );
         if (!Objects.isNull(admin)) {
             if(admin.getStatus().equals(10)) {
                 throw new BizException("该电话号码已注册");
@@ -76,10 +80,9 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
                 adminMapper.updateById(admin);
             }
         }
-        admin0 = new Admin();
-        admin0.setAdminId(adminRegisterRequest.getAdminId());
-        queryWrapper.setEntity(admin0);
-        admin = adminMapper.selectOne(queryWrapper);
+        admin = adminMapper.selectOne(
+                query.eq(Admin::getAdminId,adminRegisterRequest.getAdminId())
+        );
         if (!Objects.isNull(admin)) {
             if(admin.getStatus().equals(10)) {
                 throw new BizException("该学工号已注册");
@@ -89,75 +92,58 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
             }
         }
         admin0 = new Admin();
-        admin0.setUserId(adminRegisterRequest.getUserId());
-        admin0.setAdminId(adminRegisterRequest.getAdminId());
-        admin0.setPassword(adminRegisterRequest.getPassword());
-        admin0.setPhone(adminRegisterRequest.getPhone());
-        admin0.setUserName(adminRegisterRequest.getUserName());
+        BeanUtils.copyProperties(adminRegisterRequest,admin);
         admin0.setStatus(10);
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.setEntity(admin0);
         adminMapper.insert(admin0);
         QueryWrapper queryWrapper1 = new QueryWrapper();
         queryWrapper1.setEntity(admin0);
-        Admin admin1 = adminMapper.selectOne(queryWrapper1);
+        Admin admin1 = adminMapper.selectOne(
+                query.eq(Admin::getUserId,adminRegisterRequest.getUserId())
+        );
         RegisterVo registerVo = new RegisterVo();
-        registerVo.setId(admin1.getId());
-        registerVo.setUserName(admin1.getUserName());
+        BeanUtils.copyProperties(admin1,registerVo);
         return registerVo;
     }
 
     @Override
     public LoginVo login(LoginRequest loginRequest) {
-        String loginId = loginRequest.getLoginId();
-        String password = loginRequest.getPassword();
-        Admin admins1 = new Admin();
+        LambdaQueryWrapper<Admin> query = Wrappers.lambdaQuery(Admin.class);
         //登录名userId登陆
-        admins1.setUserId(loginId);
-        QueryWrapper queryWrapper1 = new QueryWrapper();
-        queryWrapper1.setEntity(admins1);
-        Admin admin1 = adminMapper.selectOne(queryWrapper1);
+        Admin admin1 = adminMapper.selectOne(
+                query.eq(Admin::getUserId,loginRequest.getLoginId())
+        );
         //电话号phone登陆
         if (Objects.isNull(admin1)) {
-            admins1 = new Admin();
-            admins1.setPhone(loginId);
-            QueryWrapper queryWrapper2 = new QueryWrapper();
-            queryWrapper2.setEntity(admins1);
-            admin1 = adminMapper.selectOne(queryWrapper2);
+            admin1 = adminMapper.selectOne(
+                    query.eq(Admin::getPhone,loginRequest.getLoginId())
+            );
         }
         //学工号studentId/AdminId登陆
         if (Objects.isNull(admin1)) {
-            admins1 = new Admin();
-            admins1.setAdminId(loginId);
-            QueryWrapper queryWrapper2 = new QueryWrapper();
-            queryWrapper2.setEntity(admins1);
-            admin1 = adminMapper.selectOne(queryWrapper2);
+            admin1 = adminMapper.selectOne(
+                    query.eq(Admin::getAdminId,loginRequest.getLoginId())
+            );
         }
         if (Objects.isNull(admin1)) {
             throw new BizException("该账号不存在");
         }
-        else if (admin1.getStatus() == 0) {
+        if (admin1.getStatus() == 0) {
             throw new BizException("该账户已注销");
         }
-        else if (admin1.getStatus() == 20) {
+        if (admin1.getStatus() == 20) {
             throw new BizException("该账户被锁定");
         }
-        else if (admin1.getStatus() != 10) {
+        if (admin1.getStatus() != 10) {
             throw new BizException("该账户状态异常");
         }
-        else if(!admin1.getPassword().equals(password)){
+        if(!admin1.getPassword().equals(loginRequest.getPassword())){
             throw new BizException("密码不正确");
         }
         admin1.setToken("admin-token-" + UUID.randomUUID());
         admin1.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-        UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.setEntity(admins1);
-        adminMapper.update(admin1, updateWrapper);
+        adminMapper.updateById(admin1);
         LoginVo loginVo = new LoginVo();
-        loginVo.setId(admin1.getId());
-        loginVo.setToken(admin1.getToken());
-        loginVo.setUserName(admin1.getUserName());
-        loginVo.setType(10);
+        BeanUtils.copyProperties(admin1,loginVo);
         return loginVo;
     }
 
@@ -177,27 +163,14 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         if(!Objects.equals(admin.getToken(), changeDetailRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
-        if(!"".equals(changeDetailRequest.getPassword())){
-            admin.setPassword(changeDetailRequest.getPassword());
-        }
-        if(!"".equals(changeDetailRequest.getPhone())){
-            admin.setPhone(changeDetailRequest.getPhone());
-        }
-        if(!"".equals(changeDetailRequest.getSchoolId())){
-            admin.setAdminId(changeDetailRequest.getSchoolId());
-        }
-        if(!"".equals(changeDetailRequest.getUserName())){
-            admin.setUserName(changeDetailRequest.getUserName());
-        }
+        BeanUtils.copyProperties(changeDetailRequest,admin);
         //修改信息后需重新登陆
         admin.setToken("");
         //更新时间
         admin.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         adminMapper.updateById(admin);
         ChangeDetailVo changeDetailVo = new ChangeDetailVo();
-        changeDetailVo.setId(admin.getId());
-        changeDetailVo.setType(10);
-        changeDetailVo.setUserName(admin.getUserName());
+        BeanUtils.copyProperties(admin,changeDetailVo);
         return changeDetailVo;
     }
 
@@ -265,6 +238,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         if(!Objects.equals(admin.getToken(), accountDetailRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
+        // TODO: 2020/9/6 修改返回类，拆分为两个请求
         AdminDetailVo adminDetailVo = new AdminDetailVo();
         adminDetailVo.setAdminId(admin.getAdminId());
         String phone = admin.getPhone().substring(0,3)+"****"+admin.getPhone().substring(7);
@@ -315,6 +289,7 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
     @Override
     public List<WorkGroupVo> groupList(AccountDetailRequest accountDetailRequest) {
+        // TODO: 2020/9/6 修改请求 
         if(accountDetailRequest.getType()!=10){
             throw new BizException("用户类型错误");
         }

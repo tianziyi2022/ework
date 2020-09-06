@@ -1,7 +1,9 @@
 package com.hebutgo.ework.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.hebutgo.ework.common.exception.BizException;
 import com.hebutgo.ework.entity.Admin;
 import com.hebutgo.ework.entity.GroupInfo;
@@ -12,6 +14,7 @@ import com.hebutgo.ework.mapper.GroupInfoMapper;
 import com.hebutgo.ework.mapper.UserMapper;
 import com.hebutgo.ework.service.IUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -40,11 +43,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public RegisterVo register(UserRegisterRequest userRegisterRequest) {
-        User user0 = new User();
-        user0.setUserId(userRegisterRequest.getUserId());
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.setEntity(user0);
-        User user = userMapper.selectOne(queryWrapper);
+        LambdaQueryWrapper<User> query = Wrappers.lambdaQuery(User.class);
+        User user = userMapper.selectOne(
+                query.eq(User::getUserId,userRegisterRequest.getUserId())
+        );
         if (!Objects.isNull(user)) {
             if(user.getStatus().equals(10)) {
                 throw new BizException("该用户名已被注册");
@@ -53,10 +55,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 userMapper.updateById(user);
             }
         }
-        user0 = new User();
-        user0.setPhone(userRegisterRequest.getPhone());
-        queryWrapper.setEntity(user0);
-        user = userMapper.selectOne(queryWrapper);
+        user = userMapper.selectOne(
+                query.eq(User::getPhone,userRegisterRequest.getPhone())
+        );
         if (!Objects.isNull(user)) {
             if(user.getStatus().equals(10)) {
                 throw new BizException("该电话号码已注册");
@@ -65,10 +66,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 userMapper.updateById(user);
             }
         }
-        user0 = new User();
-        user0.setStudentId(userRegisterRequest.getStudentId());
-        queryWrapper.setEntity(user0);
-        user = userMapper.selectOne(queryWrapper);
+        user = userMapper.selectOne(
+                query.eq(User::getStudentId,userRegisterRequest.getStudentId())
+        );
         if (!Objects.isNull(user)) {
             if(user.getStatus().equals(10)) {
                 throw new BizException("该学号已注册");
@@ -77,48 +77,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 userMapper.updateById(user);
             }
         }
-        user0 = new User();
-        user0.setUserId(userRegisterRequest.getUserId());
-        user0.setStudentId(userRegisterRequest.getStudentId());
-        user0.setPassword(userRegisterRequest.getPassword());
-        user0.setPhone(userRegisterRequest.getPhone());
-        user0.setUserName(userRegisterRequest.getUserName());
+        User user0 = new User();
+        BeanUtils.copyProperties(userRegisterRequest,user0);
         user0.setStatus(10);
         userMapper.insert(user0);
         QueryWrapper queryWrapper1 = new QueryWrapper();
         queryWrapper1.setEntity(user0);
         User user1 = userMapper.selectOne(queryWrapper1);
         RegisterVo registerVo = new RegisterVo();
-        registerVo.setId(user1.getId());
-        registerVo.setUserName(user1.getUserName());
+        BeanUtils.copyProperties(user1,registerVo);
         return registerVo;
     }
 
     @Override
     public LoginVo login(LoginRequest loginRequest) {
-        String loginId = loginRequest.getLoginId();
-        String password = loginRequest.getPassword();
-        User users1 = new User();
+        LambdaQueryWrapper<User> query = Wrappers.lambdaQuery(User.class);
         //登录名userId登陆
-        users1.setUserId(loginId);
-        QueryWrapper queryWrapper1 = new QueryWrapper();
-        queryWrapper1.setEntity(users1);
-        User user1 = userMapper.selectOne(queryWrapper1);
+        User user1 = userMapper.selectOne(
+                query.eq(User::getUserId,loginRequest.getLoginId())
+        );
         //电话号phone登陆
         if (Objects.isNull(user1)) {
-            users1 = new User();
-            users1.setPhone(loginId);
-            QueryWrapper queryWrapper2 = new QueryWrapper();
-            queryWrapper2.setEntity(users1);
-            user1 = userMapper.selectOne(queryWrapper2);
+            user1 = userMapper.selectOne(
+                    query.eq(User::getPhone,loginRequest.getLoginId())
+            );
         }
         //学工号studentId/adminId登陆
         if (Objects.isNull(user1)) {
-            users1 = new User();
-            users1.setStudentId(loginId);
-            QueryWrapper queryWrapper2 = new QueryWrapper();
-            queryWrapper2.setEntity(users1);
-            user1 = userMapper.selectOne(queryWrapper2);
+            user1 = userMapper.selectOne(
+                    query.eq(User::getStudentId,loginRequest.getLoginId())
+            );
         }
         if (Objects.isNull(user1)) {
             throw new BizException("该账号不存在");
@@ -132,18 +120,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         else if (user1.getStatus() != 10) {
             throw new BizException("该账户状态异常");
         }
-        else if(!user1.getPassword().equals(password)){
+        else if(!user1.getPassword().equals(loginRequest.getPassword())){
             throw new BizException("密码不正确");
         }
         user1.setToken("user-token-" + UUID.randomUUID());
         user1.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.setEntity(users1);
+        updateWrapper.setEntity(user1);
         userMapper.update(user1, updateWrapper);
         LoginVo loginVo = new LoginVo();
-        loginVo.setId(user1.getId());
-        loginVo.setToken(user1.getToken());
-        loginVo.setUserName(user1.getUserName());
+        BeanUtils.copyProperties(user1,loginVo);
         loginVo.setType(20);
         return loginVo;
     }
@@ -163,26 +149,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if(!Objects.equals(user.getToken(), changeDetailRequest.getToken())){
             throw new BizException("未登陆或登陆超时");
         }
-        if(!"".equals(changeDetailRequest.getPassword())){
-            user.setPassword(changeDetailRequest.getPassword());
-        }
-        if(!"".equals(changeDetailRequest.getPhone())){
-            user.setPhone(changeDetailRequest.getPhone());
-        }
-        if(!"".equals(changeDetailRequest.getSchoolId())){
-            user.setStudentId(changeDetailRequest.getSchoolId());
-        }
-        if(!"".equals(changeDetailRequest.getUserName())){
-            user.setUserName(changeDetailRequest.getUserName());
-        }
+        BeanUtils.copyProperties(changeDetailRequest,user);
         //修改信息后需重新登陆
         user.setToken("");
         user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         userMapper.updateById(user);
         ChangeDetailVo changeDetailVo = new ChangeDetailVo();
-        changeDetailVo.setId(user.getId());
-        changeDetailVo.setType(20);
-        changeDetailVo.setUserName(user.getUserName());
+        BeanUtils.copyProperties(user,changeDetailVo);
+        changeDetailVo.setType(20);;
         return changeDetailVo;
     }
 
@@ -261,8 +235,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         userMapper.updateById(user);
         JoinGroupVo joinGroupVo = new JoinGroupVo();
-        joinGroupVo.setGroupName(group.getGroupName());
-        joinGroupVo.setId(group.getId());
+        BeanUtils.copyProperties(group,joinGroupVo);
         joinGroupVo.setTopic("成功加入小组");
         return joinGroupVo;
     }
@@ -293,8 +266,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setUpdateTime(new Timestamp(System.currentTimeMillis()));
         userMapper.updateById(user);
         JoinGroupVo joinGroupVo = new JoinGroupVo();
-        joinGroupVo.setGroupName(group.getGroupName());
-        joinGroupVo.setId(group.getId());
+        BeanUtils.copyProperties(group,joinGroupVo);
         joinGroupVo.setTopic("成功退出小组");
         return joinGroupVo;
     }
@@ -315,21 +287,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             throw new BizException("未登陆或登陆超时");
         }
         UserDetailVo userDetailVo = new UserDetailVo();
+        BeanUtils.copyProperties(user,userDetailVo);
         if(Objects.isNull(user.getGroupId())){
             userDetailVo.setGroupCode("-");
             userDetailVo.setGroupId(0);
             userDetailVo.setGroupName("未加入小组");
         } else {
             GroupInfo group = groupInfoMapper.selectById(user.getGroupId());
+            BeanUtils.copyProperties(group,userDetailVo);
             userDetailVo.setGroupId(user.getGroupId());
-            userDetailVo.setGroupName(group.getGroupName());
-            userDetailVo.setGroupCode(group.getGroupCode());
         }
         String phone = user.getPhone().substring(0,3)+"****"+user.getPhone().substring(7);
         userDetailVo.setPhone(phone);
-        userDetailVo.setStudentId(user.getStudentId());
-        userDetailVo.setUserName(user.getUserName());
-        userDetailVo.setStatus(user.getStatus());
         return userDetailVo;
     }
 }
