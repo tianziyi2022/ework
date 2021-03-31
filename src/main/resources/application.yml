@@ -8,8 +8,8 @@ spring:
       max-request-size: 50Mb
 
   datasource:
-    username: root
-    password: tzy20000712
-    url: jdbc:mysql://cdb-7baisrai.bj.tencentcdb.com:10225/ework?serverTimezone=GMT%2B8
+    username: ****
+    password: *********
+    url: jdbc:mysql://****************
     driver-class-name: com.mysql.cj.jdbc.Driver
 
